@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+	<AddIn Type ="Application">
+		<Name>PanelPlacement</Name>
+		<Assembly>PanelPlacement.dll</Assembly>
+		<AddInId>04626f6c-1e42-4a5f-8f3d-9511ec8f752d</AddInId>
+		<FullClassName>PanelPlacement.App</FullClassName>
+		<Description>Creates panels based on the wall</Description>
+		<VendorId>KELONMYOSA</VendorId>
+		<VendorDescription>Vladislav Samoilenko, github.com/KELONMYOSA</VendorDescription>
+		<VisibilityMode>AlwaysVisible</VisibilityMode>
+	</AddIn>
+</RevitAddIns>

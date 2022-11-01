@@ -1,0 +1,32 @@
+﻿<Window x:Class="PanelPlacement.UserInterface"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   mc:Ignorable="d" 
+                   Width="300" Height="240"
+                   d:DesignHeight="240" d:DesignWidth="300">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30px"/>
+        </Grid.RowDefinitions>
+        
+        <Button x:Name="BtnCreate" Grid.Row="1"
+                Width="120"
+                Click="ButtonCreate"
+                Content=" Создать "
+                HorizontalAlignment="Center"
+                VerticalAlignment="Stretch"/>
+        <Label x:Name="Label1" Content="Максимальная ширина:" HorizontalAlignment="Left" Height="25" Margin="15,10,0,0" VerticalAlignment="Top" Width="150"/>
+        <Label x:Name="Label2" Content="Максимальная высота:" HorizontalAlignment="Left" Height="25" Margin="15,40,0,0" VerticalAlignment="Top" Width="150"/>
+        <Label x:Name="Label3" Content="Разделять панели пересечением стен?" HorizontalAlignment="Left" Height="25" Margin="15,90,0,0" VerticalAlignment="Top" Width="250"/>
+        <TextBox x:Name="Width" HorizontalAlignment="Left" Height="20" Margin="200,15,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="70"/>
+        <TextBox x:Name="Height" HorizontalAlignment="Left" Height="20" Margin="200,45,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="70"/>
+        <RadioButton x:Name="DivideTrue" Click="DivideTrue_Click" GroupName="Align" Content="Да" HorizontalAlignment="Left" Height="20" Margin="20,120,0,0" VerticalAlignment="Top" Width="50" IsChecked="True"/>
+        <RadioButton x:Name="DivideFalse" Click="DivideFalse_Click" GroupName="Align" Content="Нет" HorizontalAlignment="Left" Height="20" Margin="70,120,0,0" VerticalAlignment="Top" Width="50"/>
+        <CheckBox x:Name="AnalyseLinks" Content="Обрабатывать стены из связей" HorizontalAlignment="Left" Height="20" Margin="20,150,0,0" VerticalAlignment="Top" Width="200" IsChecked="True"/>
+    </Grid>
+
+</Window>
