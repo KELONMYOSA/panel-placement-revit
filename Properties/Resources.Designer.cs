@@ -63,9 +63,29 @@ namespace PanelPlacement.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap AssembliesAndViews {
+            get {
+                object obj = ResourceManager.GetObject("AssembliesAndViews", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Create {
             get {
                 object obj = ResourceManager.GetObject("Create", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap PlaceOnSheets {
+            get {
+                object obj = ResourceManager.GetObject("PlaceOnSheets", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

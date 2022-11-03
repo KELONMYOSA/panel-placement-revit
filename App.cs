@@ -17,21 +17,38 @@ namespace PanelPlacement
         public Result OnStartup(UIControlledApplication application)
         {
             assemblyPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            string tabName = "Фасадные панели";
+            string tabName = "Стеновые панели";
+            
+            //Разделы вкладки
+            //Размещение
             try { application.CreateRibbonTab(tabName); } catch { }
             string panelName = "Размещение";
-            RibbonPanel panel = null;
+            RibbonPanel panelCreation = null;
             List<RibbonPanel> tryPanels = application.GetRibbonPanels(tabName).Where(i => i.Name == panelName).ToList();
             if (tryPanels.Count == 0)
             {
-                panel = application.CreateRibbonPanel(tabName, panelName);
+                panelCreation = application.CreateRibbonPanel(tabName, panelName);
             }
             else
             {
-                panel = tryPanels.First();
+                panelCreation = tryPanels.First();
+            }
+            //Оформление
+            try { application.CreateRibbonTab(tabName); } catch { }
+            panelName = "Оформление";
+            RibbonPanel panelViews = null;
+            tryPanels = application.GetRibbonPanels(tabName).Where(i => i.Name == panelName).ToList();
+            if (tryPanels.Count == 0)
+            {
+                panelViews = application.CreateRibbonPanel(tabName, panelName);
+            }
+            else
+            {
+                panelViews = tryPanels.First();
             }
 
-            PushButton btn1 = panel.AddItem(new PushButtonData(
+            //Кнопки
+            PushButton btn1 = panelCreation.AddItem(new PushButtonData(
                             "CreatePanels",
                             "Разместить панели",
                             assemblyPath,
@@ -39,6 +56,24 @@ namespace PanelPlacement
                             ) as PushButton;
             btn1.LargeImage = ConverPngToBitmap(Properties.Resources.Create);
             btn1.ToolTip = "Размещение панелей по оси стены";
+
+            PushButton btn2 = panelViews.AddItem(new PushButtonData(
+                            "CreateAssemblies",
+                            "Создать сборку",
+                            assemblyPath,
+                            "PanelPlacement.CreateAssembliesAndViews")
+                            ) as PushButton;
+            btn2.LargeImage = ConverPngToBitmap(Properties.Resources.AssembliesAndViews);
+            btn2.ToolTip = "Создание сборок и видов";
+
+            PushButton btn3 = panelViews.AddItem(new PushButtonData(
+                            "CreateSheets",
+                            "Разместить на листы",
+                            assemblyPath,
+                            "PanelPlacement.PlaceOnSheets")
+                            ) as PushButton;
+            btn3.LargeImage = ConverPngToBitmap(Properties.Resources.PlaceOnSheets);
+            btn3.ToolTip = "Разместить виды на листах";
 
             return Result.Succeeded;
         }
