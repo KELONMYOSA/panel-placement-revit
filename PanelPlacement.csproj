@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\AssembliesAndViews.png" />
     <None Remove="Resources\Create.png" />
+    <None Remove="Resources\PlaceOnSheets.png" />
     <None Remove="UserInterface.xaml" />
   </ItemGroup>
 
@@ -50,9 +52,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\AssembliesAndViews.png" />
     <Resource Include="Resources\Create.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\PlaceOnSheets.png" />
   </ItemGroup>
 
   <ItemGroup>
