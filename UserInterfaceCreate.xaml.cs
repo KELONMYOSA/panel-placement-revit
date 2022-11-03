@@ -5,9 +5,9 @@ using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace PanelPlacement
 {
-    public partial class UserInterface : Window
+    public partial class UserInterfaceCreate : Window
     {
-        public UserInterface()
+        public UserInterfaceCreate()
         {
             InitializeComponent();
         }

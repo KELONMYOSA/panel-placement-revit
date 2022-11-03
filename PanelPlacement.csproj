@@ -8,7 +8,9 @@
     <None Remove="Resources\AssembliesAndViews.png" />
     <None Remove="Resources\Create.png" />
     <None Remove="Resources\PlaceOnSheets.png" />
-    <None Remove="UserInterface.xaml" />
+    <None Remove="UserInterfaceAssemblies.xaml" />
+    <None Remove="UserInterfaceCreate.xaml" />
+    <None Remove="UserInterfaceViews.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,7 +24,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Include="UserInterface.xaml">
+    <Page Include="UserInterfaceViews.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserInterfaceAssemblies.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserInterfaceCreate.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
@@ -64,6 +74,12 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="UserInterfaceViews.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="UserInterfaceAssemblies.xaml.cs">
+      <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
 

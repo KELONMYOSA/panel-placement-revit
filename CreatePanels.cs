@@ -18,7 +18,7 @@ namespace PanelPlacement
 
             IList<Wall> walls = GetAllWalls(doc);
 
-            var ui = new UserInterface();
+            var ui = new UserInterfaceCreate();
             bool tdRes = (bool)ui.ShowDialog();
 
             if (tdRes == false)
