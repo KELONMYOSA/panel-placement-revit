@@ -15,7 +15,7 @@ namespace PanelPlacement
         {
             Document doc = commandData.Application.ActiveUIDocument.Document;
 
-            //Собираем не использованные типоразмеры
+            //Собираем не использованные и не пустые типоразмеры
             IList<string> unusedTypesOfPanels = new List<string>();
             IList<string> createdAssemblies = new FilteredElementCollector(doc)
                 .OfCategory(BuiltInCategory.OST_Assemblies)
@@ -28,27 +28,35 @@ namespace PanelPlacement
                 .Where(p => p.FamilyName.Contains("Панель"))
                 .Select(p => p.Name)
                 .ToList();
+            IList<string> emptyTypesOfPanels = new List<string>();
             foreach (string type in typesOfPanels)
             {
-                if (createdAssemblies.Count != 0)
+                IList<Element> allElementsOfType = new FilteredElementCollector(doc)
+                    .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                    .WhereElementIsNotElementType()
+                    .Where(p => (p as FamilyInstance).Symbol.Name.Equals(type))
+                    .ToList();
+                if (allElementsOfType.Count == 0)
                 {
-                    byte n = 0;
-                    foreach (string assemble in createdAssemblies)
+                    emptyTypesOfPanels.Add(type);
+                }
+            }
+                foreach (string type in typesOfPanels)
+            {
+                if (!emptyTypesOfPanels.Contains(type))
+                {
+                    if (createdAssemblies.Count != 0)
                     {
-                        if (assemble.Equals(type))
+                        if (!createdAssemblies.Contains(type))
                         {
-                            n++;
+                            unusedTypesOfPanels.Add(type);
                         }
                     }
-                    if (n == 0)
+                    else
                     {
                         unusedTypesOfPanels.Add(type);
                     }
-                }
-                else
-                {
-                    unusedTypesOfPanels.Add(type);
-                }
+                } 
             }
             unusedTypesOfPanels = unusedTypesOfPanels.OrderBy(q => q).ToList();
 
@@ -102,18 +110,19 @@ namespace PanelPlacement
                             ElementId categoryId = doc.GetElement(elementIds.First()).Category.Id;
                             if (AssemblyInstance.IsValidNamingCategory(doc, categoryId, elementIds))
                             {
-                                transaction.Start("Create Assembly Instance");
+                                transaction.Start("Создание сборки");
                                 assemblyInstance = AssemblyInstance.Create(doc, elementIds, categoryId);
                                 transaction.Commit();
 
                                 if (transaction.GetStatus() == TransactionStatus.Committed)
                                 {
-                                    transaction.Start("Set Assembly Name");
+                                    transaction.Start("Назначение имени сборки");
                                     assemblyInstance.AssemblyTypeName = type;
                                     transaction.Commit();
                                 }
                             }
                         }
+                        assemblies.Add(assemblyInstance);
                     }
                 }
             }
