@@ -1,10 +1,10 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
-using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using View = Autodesk.Revit.DB.View;
 
 namespace PanelPlacement
 {
@@ -78,19 +78,51 @@ namespace PanelPlacement
                     return Result.Cancelled;
                 }
 
-                //Вызываем окно выбора шаблонов вида
-                var uiAssembliesViews = new UserInterfaceViews();
-                bool tdResViews = (bool)uiAssembliesViews.ShowDialog();
+                //Собираем шаблоны видов
+                IList<View> viewTemplates = new FilteredElementCollector(doc)
+                .OfClass(typeof(View))
+                .Cast<View>()
+                .Where(v => v.IsTemplate && v.Name.StartsWith("Панель"))
+                .ToList();
+                IList<string> viewTemplateNames = new List<string>();
+                foreach (View viewTemplate in viewTemplates)
+                {
+                    viewTemplateNames.Add(viewTemplate.Name);
+                }
 
+               //Вызываем окно выбора шаблонов вида
+                var uiAssembliesViews = new UserInterfaceViews(viewTemplateNames);
+                bool tdResViews = (bool)uiAssembliesViews.ShowDialog();
                 if (tdResViews == false)
                 {
                     return Result.Cancelled;
                 }
                 else
                 {
-                    //Создаем сборки
-                    IList<Element> assemblies = new List<Element>();
+                    //Получаем id выбранных шаблонов
+                    ElementId templatePlan = ElementId.InvalidElementId;
+                    ElementId templateFront = ElementId.InvalidElementId;
+                    ElementId templateSection = ElementId.InvalidElementId;
+                    string selectedTemplatePlan = uiAssembliesViews.selectedTemplatePlan;
+                    string selectedTemplateFront = uiAssembliesViews.selectedTemplateFront;
+                    string selectedTemplateSection = uiAssembliesViews.selectedTemplateSection;
+                    foreach (View view in viewTemplates)
+                    {
+                        if (view.Name.Equals(selectedTemplatePlan))
+                        {
+                            templatePlan = view.Id;
+                        }
+                        if (view.Name.Equals(selectedTemplateFront))
+                        {
+                            templateFront = view.Id;
+                        }
+                        if (view.Name.Equals(selectedTemplateSection))
+                        {
+                            templateSection = view.Id;
+                        }
+                    }
 
+                    //Создаем сборки и виды
                     foreach (string type in selectedTypes)
                     {
                         IList<Element> allElementsOfType = new FilteredElementCollector(doc)
@@ -110,19 +142,29 @@ namespace PanelPlacement
                             ElementId categoryId = doc.GetElement(elementIds.First()).Category.Id;
                             if (AssemblyInstance.IsValidNamingCategory(doc, categoryId, elementIds))
                             {
-                                transaction.Start("Создание сборки");
+                                transaction.Start(type + " - Создание сборки");
                                 assemblyInstance = AssemblyInstance.Create(doc, elementIds, categoryId);
                                 transaction.Commit();
 
                                 if (transaction.GetStatus() == TransactionStatus.Committed)
                                 {
-                                    transaction.Start("Назначение имени сборки");
+                                    transaction.Start(type + " - Назначение имени сборки");
                                     assemblyInstance.AssemblyTypeName = type;
                                     transaction.Commit();
                                 }
                             }
+                            if (assemblyInstance.AllowsAssemblyViewCreation())
+                            {
+                                if (transaction.GetStatus() == TransactionStatus.Committed)
+                                {
+                                    transaction.Start(type + " - Создание вида сборки");
+                                    ViewSection viewPlan = AssemblyViewUtils.CreateDetailSection(doc, assemblyInstance.Id, AssemblyDetailViewOrientation.HorizontalDetail, templatePlan, true);
+                                    ViewSection viewFront = AssemblyViewUtils.CreateDetailSection(doc, assemblyInstance.Id, AssemblyDetailViewOrientation.ElevationFront, templateFront, true);
+                                    ViewSection viewSection = AssemblyViewUtils.CreateDetailSection(doc, assemblyInstance.Id, AssemblyDetailViewOrientation.DetailSectionB, templateSection, true);
+                                    transaction.Commit();
+                                }
+                            }
                         }
-                        assemblies.Add(assemblyInstance);
                     }
                 }
             }

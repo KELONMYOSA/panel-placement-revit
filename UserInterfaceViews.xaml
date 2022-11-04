@@ -12,7 +12,28 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="30px"/>
         </Grid.RowDefinitions>
-
+        <Label x:Name="Label1" Content="Выберите необходимые шаблоны вида:" HorizontalAlignment="Left" Height="25" Margin="15,10,0,0" VerticalAlignment="Top" Width="250"/>
+        <Label x:Name="Label2" Content="План:" HorizontalAlignment="Left" Height="25" Margin="15,40,0,0" VerticalAlignment="Top" Width="150"/>
+        <Label x:Name="Label3" Content="Вид спереди:" HorizontalAlignment="Left" Height="25" Margin="15,110,0,0" VerticalAlignment="Top" Width="250"/>
+        <Label x:Name="Label4" Content="Разрез:" HorizontalAlignment="Left" Height="25" Margin="15,180,0,0" VerticalAlignment="Top" Width="250"/>
+        <ComboBox Name="comboBox1"
+            HorizontalAlignment="Left"
+            Height="25"
+            Margin="15,65,0,0"
+            VerticalAlignment="Top"
+            Width="255"/>
+        <ComboBox Name="comboBox2"
+            HorizontalAlignment="Left"
+            Height="25"
+            Margin="15,135,0,0"
+            VerticalAlignment="Top"
+            Width="255"/>
+        <ComboBox Name="comboBox3"
+            HorizontalAlignment="Left"
+            Height="25"
+            Margin="15,205,0,0"
+            VerticalAlignment="Top"
+            Width="255"/>
         <Button x:Name="BtnCreate" Grid.Row="1"
                 Width="120"
                 Click="ButtonCreate"
