@@ -174,12 +174,19 @@ namespace PanelPlacement
                                     {
                                         transaction.Start(type + " - Размещение заголовка");
 
-                                        Element textNoteType = new FilteredElementCollector(doc)
+                                        Element textNoteType = null;
+                                        try
+                                        {
+                                            textNoteType = new FilteredElementCollector(doc)
                                             .OfClass(typeof(TextNoteType))
                                             .WhereElementIsElementType()
                                             .Where(p => p.Name.StartsWith("Панель"))
                                             .First();
-
+                                        } catch
+                                        {
+                                            MessageBox.Show("Не обнаружен тип текста! Название типа должно начинаться с \"Панель\".", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                            return Result.Cancelled;
+                                        }
                                         XYZ planTextXYZ = viewPlan.Origin + new XYZ((viewPlan.get_BoundingBox(doc.GetElement(viewPlan.GetPrimaryViewId()) as View).Max.X - viewPlan.get_BoundingBox(doc.GetElement(viewPlan.GetPrimaryViewId()) as View).Min.X) / 2,
                                             viewPlan.get_BoundingBox(doc.GetElement(viewPlan.GetPrimaryViewId()) as View).Max.Y - viewPlan.get_BoundingBox(doc.GetElement(viewPlan.GetPrimaryViewId()) as View).Min.Y, 0);
                                         TextNote planTextNote = TextNote.Create(doc, viewPlan.Id, planTextXYZ, type, textNoteType.Id);

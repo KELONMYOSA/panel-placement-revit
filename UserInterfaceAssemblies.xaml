@@ -16,7 +16,7 @@
         <Button x:Name="BtnCreate" Grid.Row="1"
                 Width="120"
                 Click="ButtonCreate"
-                Content=" Выбрать шаблоны "
+                Content=" ОК "
                 HorizontalAlignment="Center"
                 VerticalAlignment="Stretch"/>
         <Button x:Name="BtnAll" Grid.Row="1"
