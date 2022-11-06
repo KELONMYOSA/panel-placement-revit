@@ -18,23 +18,40 @@ namespace PanelPlacement
 
             //Поиск начальной координаты для вставки примеров типоразмера
             XYZ startPlacementPoint = new XYZ(-30000 / 304.8, -30000 / 304.8, 0);
-            IList<FamilyInstance> allPlacedTemplatePanels = new FilteredElementCollector(doc)
+            IList<FamilyInstance> allPlacedTemplatePanels = new List<FamilyInstance>();
+            try
+            {
+                allPlacedTemplatePanels = new FilteredElementCollector(doc)
                 .OfCategory(BuiltInCategory.OST_StructuralFraming)
                 .WhereElementIsNotElementType()
                 .Cast<FamilyInstance>()
                 .Where(p => p.Symbol.FamilyName.Contains("Панель") && p.LookupParameter("Не включать в спецификацию").AsInteger().Equals(1))
                 .ToList();
+            }
+            catch
+            {
+                MessageBox.Show("У панелей отсутствует параметр \"Не включать в спецификацию\"!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return Result.Cancelled;
+            }
+            bool found = false;
             foreach (FamilyInstance panel in allPlacedTemplatePanels)
             {
-                if ((panel.Location as LocationPoint).Point.Y <= startPlacementPoint.Y)
+                if ((panel.Location as LocationPoint).Point.Y < startPlacementPoint.Y)
+                {
+                    startPlacementPoint = (panel.Location as LocationPoint).Point;
+                    found = true;
+                    
+                }
+                if (Math.Round((panel.Location as LocationPoint).Point.Y, 3) == Math.Round(startPlacementPoint.Y, 3))
                 {
                     if ((panel.Location as LocationPoint).Point.X <= startPlacementPoint.X)
                     {
                         startPlacementPoint = (panel.Location as LocationPoint).Point;
+                        found = true;
                     }
                 }
             }
-            if (!(Math.Round(startPlacementPoint.X, 3) == Math.Round(-30000 / 304.8, 3) && Math.Round(startPlacementPoint.Y, 3) == Math.Round(-30000 / 304.8, 3)))
+            if (found)
             {
                 if (Math.Round(startPlacementPoint.X, 3) == Math.Round(-50000 / 304.8, 3))
                 {
