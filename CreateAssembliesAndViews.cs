@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -14,6 +15,36 @@ namespace PanelPlacement
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             Document doc = commandData.Application.ActiveUIDocument.Document;
+
+            //Поиск начальной координаты для вставки примеров типоразмера
+            XYZ startPlacementPoint = new XYZ(-30000 / 304.8, -30000 / 304.8, 0);
+            IList<FamilyInstance> allPlacedTemplatePanels = new FilteredElementCollector(doc)
+                .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                .WhereElementIsNotElementType()
+                .Cast<FamilyInstance>()
+                .Where(p => p.Symbol.FamilyName.Contains("Панель") && p.LookupParameter("Не включать в спецификацию").AsInteger().Equals(1))
+                .ToList();
+            foreach (FamilyInstance panel in allPlacedTemplatePanels)
+            {
+                if ((panel.Location as LocationPoint).Point.Y <= startPlacementPoint.Y)
+                {
+                    if ((panel.Location as LocationPoint).Point.X <= startPlacementPoint.X)
+                    {
+                        startPlacementPoint = (panel.Location as LocationPoint).Point;
+                    }
+                }
+            }
+            if (!(Math.Round(startPlacementPoint.X, 3) == Math.Round(-30000 / 304.8, 3) && Math.Round(startPlacementPoint.Y, 3) == Math.Round(-30000 / 304.8, 3)))
+            {
+                if (Math.Round(startPlacementPoint.X, 3) == Math.Round(-50000 / 304.8, 3))
+                {
+                    startPlacementPoint = new XYZ(-30000 / 304.8, startPlacementPoint.Y - 5000 / 304.8, 0);
+                }
+                else
+                {
+                    startPlacementPoint = new XYZ(startPlacementPoint.X - 5000 / 304.8, startPlacementPoint.Y, 0);
+                }
+            }
 
             //Собираем не использованные и не пустые типоразмеры
             IList<string> unusedTypesOfPanels = new List<string>();
@@ -127,20 +158,33 @@ namespace PanelPlacement
                     //Создаем сборки и виды
                     foreach (string type in selectedTypes)
                     {
-                        IList<Element> allElementsOfType = new FilteredElementCollector(doc)
-                            .OfCategory(BuiltInCategory.OST_StructuralFraming)
-                            .WhereElementIsNotElementType()
-                            .Where(p => (p as FamilyInstance).Symbol.Name.Equals(type))
-                            .ToList();
-                        IList<ElementId> elementIds = new List<ElementId>();
-                        foreach (Element element in allElementsOfType)
-                        {
-                            elementIds.Add(element.Id);
-                        }
-
-                        AssemblyInstance assemblyInstance = null;
                         using (Transaction transaction = new Transaction(doc))
                         {
+                            transaction.Start(type + " - Создание шаблонного экземпляра типа");
+                            FamilySymbol currentType = new FilteredElementCollector(doc)
+                                .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                                .WhereElementIsElementType()
+                                .Where(p => p.Name.Equals(type))
+                                .Select(p => p as FamilySymbol)
+                                .First();
+                            FamilyInstance createdElement = doc.Create.NewFamilyInstance(startPlacementPoint, currentType, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                            createdElement.LookupParameter("Не включать в спецификацию").Set(1);
+                            transaction.Commit();
+
+                            if (Math.Round(startPlacementPoint.X, 3) == Math.Round(-50000 / 304.8, 3))
+                            {
+                                startPlacementPoint = new XYZ(-30000 / 304.8, startPlacementPoint.Y - 5000 / 304.8, 0);
+                            }
+                            else
+                            {
+                                startPlacementPoint = new XYZ(startPlacementPoint.X - 5000 / 304.8, startPlacementPoint.Y, 0);
+                            }
+
+                            IList<ElementId> elementIds = new List<ElementId>();
+                            elementIds.Add(createdElement.Id);
+
+                            AssemblyInstance assemblyInstance = null;
+                        
                             ElementId categoryId = doc.GetElement(elementIds.First()).Category.Id;
                             if (AssemblyInstance.IsValidNamingCategory(doc, categoryId, elementIds))
                             {
