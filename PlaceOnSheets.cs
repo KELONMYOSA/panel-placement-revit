@@ -117,7 +117,16 @@ namespace PanelPlacement
                         {
                             transaction.Start(assembly + " - Создание листа");
 
-                            ViewSheet newSheet = doc.GetElement(sheetTemplate.Duplicate(SheetDuplicateOption.DuplicateSheetWithViewsAndDetailing)) as ViewSheet;
+                            ViewSheet newSheet;
+                            try
+                            {
+                                newSheet = doc.GetElement(sheetTemplate.Duplicate(SheetDuplicateOption.DuplicateSheetWithViewsAndDetailing)) as ViewSheet;
+                            }
+                            catch
+                            {
+                                MessageBox.Show("На шаблоне листа нет видов!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return Result.Cancelled;
+                            }
                             newSheet.Name = assembly;
                             newSheet.SheetNumber = "П-" + sheetIndex.ToString();
                             IList<ElementId> placedViewportIds = newSheet.GetAllViewports() as IList<ElementId>;
@@ -126,6 +135,7 @@ namespace PanelPlacement
                             {
                                 placedViewports.Add(doc.GetElement(viewportId) as Viewport);
                             }
+                            byte n = 0;
                             foreach (Viewport viewport in placedViewports)
                             {
                                 if (doc.GetElement(viewport.ViewId).Name.StartsWith("План"))
@@ -138,6 +148,7 @@ namespace PanelPlacement
                                     else
                                     {
                                         viewport.ViewId = viewPlan.Id;
+                                        n++;
                                     }
                                 }
                                 if (doc.GetElement(viewport.ViewId).Name.StartsWith("Вид спереди"))
@@ -150,6 +161,7 @@ namespace PanelPlacement
                                     else
                                     {
                                         viewport.ViewId = viewFront.Id;
+                                        n++;
                                     }
                                 }
                                 if (doc.GetElement(viewport.ViewId).Name.StartsWith("Разрез"))
@@ -162,16 +174,33 @@ namespace PanelPlacement
                                     else
                                     {
                                         viewport.ViewId = viewSection.Id;
+                                        n++;
                                     }
                                 }
+                            }
+                            if (n == 0)
+                            {
+                                MessageBox.Show("На шаблоне листа нет необходимых видов!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return Result.Cancelled;
                             }
 
                             transaction.Commit();
                             sheetIndex++;
                         }
-                    } catch 
+                    }
+                    catch
                     {
-                        MessageBox.Show("Для сборки " + assembly + " не будет создан лист, т.к. виды сборки используются в шаблоне листа.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        using (Transaction transaction = new Transaction(doc))
+                        {
+                            transaction.Start(assembly + " - Создание листа");
+
+                            ViewSheet newSheet = doc.GetElement(sheetTemplate.Duplicate(SheetDuplicateOption.DuplicateSheetWithViewsAndDetailing)) as ViewSheet;
+                            newSheet.Name = assembly;
+                            newSheet.SheetNumber = "П-" + sheetIndex.ToString();
+
+                            transaction.Commit();
+                            sheetIndex++;
+                        }
                     }
                 }
 
