@@ -2,7 +2,6 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using View = Autodesk.Revit.DB.View;
@@ -90,6 +89,8 @@ namespace PanelPlacement
                 //Копируем лист и заменяем виды
                 IList<string> selectedAssemblies = uiSheets.selectedAssemblies;
                 selectedAssemblies = selectedAssemblies.OrderBy(q => q).ToList();
+                bool dontShowAllCreatedViews = false;
+                string allCreatedViewsString = "Листы созданы:\n";
                 foreach (string assembly in selectedAssemblies)
                 {
                     try
@@ -117,27 +118,39 @@ namespace PanelPlacement
                         {
                             transaction.Start(assembly + " - Создание листа");
 
-                            ViewSheet newSheet;
-                            try
-                            {
-                                newSheet = doc.GetElement(sheetTemplate.Duplicate(SheetDuplicateOption.DuplicateSheetWithViewsAndDetailing)) as ViewSheet;
-                            }
-                            catch
+                            IList<ElementId> placedViewportIds = sheetTemplate.GetAllViewports() as IList<ElementId>;
+                            if (!placedViewportIds.Any())
                             {
                                 MessageBox.Show("На шаблоне листа нет видов!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 return Result.Cancelled;
                             }
-                            newSheet.Name = assembly;
-                            newSheet.SheetNumber = "П-" + sheetIndex.ToString();
-                            IList<ElementId> placedViewportIds = newSheet.GetAllViewports() as IList<ElementId>;
                             IList<Viewport> placedViewports = new List<Viewport>();
                             foreach (ElementId viewportId in placedViewportIds)
                             {
                                 placedViewports.Add(doc.GetElement(viewportId) as Viewport);
                             }
+
+                            Element titleBlockTemplate = new FilteredElementCollector(doc)
+                                .OfCategory(BuiltInCategory.OST_TitleBlocks)
+                                .WhereElementIsNotElementType()
+                                .Where(t => t.get_Parameter(BuiltInParameter.SHEET_NUMBER).AsString().Equals(sheetTemplate.SheetNumber))
+                                .First();
+                            ViewSheet newSheet = ViewSheet.Create(doc, titleBlockTemplate.GetTypeId());
+                            newSheet.Name = assembly;
+                            newSheet.SheetNumber = "П-" + sheetIndex.ToString();
+                            Element titleBlock = new FilteredElementCollector(doc)
+                                .OfCategory(BuiltInCategory.OST_TitleBlocks)
+                                .WhereElementIsNotElementType()
+                                .Where(t => t.get_Parameter(BuiltInParameter.SHEET_NUMBER).AsString().Equals(newSheet.SheetNumber))
+                                .First();
+                            BoundingBoxXYZ titleBlockLocation = titleBlockTemplate.get_BoundingBox(doc.GetElement(titleBlockTemplate.OwnerViewId) as View);
+                            ElementTransformUtils.MoveElement(doc, titleBlock.Id, titleBlockLocation.Min);
+
                             byte n = 0;
                             foreach (Viewport viewport in placedViewports)
                             {
+                                BoundingBoxXYZ xyzLocation = viewport.get_BoundingBox(doc.GetElement(viewport.OwnerViewId) as View);
+                                XYZ xyzPosition = (xyzLocation.Max + xyzLocation.Min) / 2.0;
                                 if (doc.GetElement(viewport.ViewId).Name.StartsWith("План"))
                                 {
                                     if (viewPlan == null)
@@ -147,7 +160,7 @@ namespace PanelPlacement
                                     }
                                     else
                                     {
-                                        viewport.ViewId = viewPlan.Id;
+                                        Viewport newViewport = Viewport.Create(doc, newSheet.Id, viewPlan.Id, xyzPosition);
                                         n++;
                                     }
                                 }
@@ -160,7 +173,7 @@ namespace PanelPlacement
                                     }
                                     else
                                     {
-                                        viewport.ViewId = viewFront.Id;
+                                        Viewport newViewport = Viewport.Create(doc, newSheet.Id, viewFront.Id, xyzPosition);
                                         n++;
                                     }
                                 }
@@ -173,7 +186,7 @@ namespace PanelPlacement
                                     }
                                     else
                                     {
-                                        viewport.ViewId = viewSection.Id;
+                                        Viewport newViewport = Viewport.Create(doc, newSheet.Id, viewSection.Id, xyzPosition);
                                         n++;
                                     }
                                 }
@@ -186,24 +199,27 @@ namespace PanelPlacement
 
                             transaction.Commit();
                             sheetIndex++;
+                            allCreatedViewsString = allCreatedViewsString + "- " + assembly + "\n";
                         }
                     }
                     catch
                     {
                         using (Transaction transaction = new Transaction(doc))
                         {
-                            transaction.Start(assembly + " - Создание листа");
-
-                            ViewSheet newSheet = doc.GetElement(sheetTemplate.Duplicate(SheetDuplicateOption.DuplicateSheetWithViewsAndDetailing)) as ViewSheet;
-                            newSheet.Name = assembly;
-                            newSheet.SheetNumber = "П-" + sheetIndex.ToString();
-
-                            transaction.Commit();
-                            sheetIndex++;
+                            MessageBox.Show("Для сборки " + assembly + " не будет создан лист. Виды уже размещены на листе.", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            if (selectedAssemblies.Count == 1)
+                            {
+                                dontShowAllCreatedViews = true;
+                            }
                         }
                     }
                 }
 
+                if (dontShowAllCreatedViews == false)
+                {
+                    MessageBox.Show(allCreatedViewsString, "Готово!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                
                 return Result.Succeeded;
             }
         }

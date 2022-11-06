@@ -123,6 +123,7 @@ namespace PanelPlacement
                         }
                     }
 
+                    string allCreatedViewsString = "Виды созданы:\n";
                     //Создаем сборки и виды
                     foreach (string type in selectedTypes)
                     {
@@ -213,12 +214,14 @@ namespace PanelPlacement
                                             ElementTransformUtils.MoveElement(doc, sectionTextNote.Id, sectionTextOffset);
 
                                             transaction.Commit();
+                                            allCreatedViewsString = allCreatedViewsString + "- " + type + "\n";
                                         }
                                     }
                                 }
                             }      
                         }
                     }
+                    MessageBox.Show(allCreatedViewsString, "Готово!", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             return Result.Succeeded;        
