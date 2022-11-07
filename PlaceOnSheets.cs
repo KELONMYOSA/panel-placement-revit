@@ -194,7 +194,7 @@ namespace PanelPlacement
                             }
 
                             //Проверяем пересекаются ли видовые экраны
-                            if (viewFront != null && viewSection != null)
+                            if (viewFront != null && viewSection != null && viewPlan != null)
                             {
                                 IList<ElementId> placedViewportIdsCheck = newSheet.GetAllViewports() as IList<ElementId>;
                                 IList<Viewport> placedViewportsCheck = new List<Viewport>();
@@ -202,10 +202,15 @@ namespace PanelPlacement
                                 {
                                     placedViewportsCheck.Add(doc.GetElement(viewportId) as Viewport);
                                 }
+                                Viewport planCheck = null;
                                 Viewport frontCheck = null;
                                 Viewport sectionCheck = null;
                                 foreach (Viewport viewport in placedViewportsCheck)
                                 {
+                                    if (doc.GetElement(viewport.ViewId).Name.StartsWith("План"))
+                                    {
+                                        planCheck = viewport;
+                                    }
                                     if (doc.GetElement(viewport.ViewId).Name.StartsWith("Вид спереди"))
                                     {
                                         frontCheck = viewport;
@@ -215,10 +220,9 @@ namespace PanelPlacement
                                         sectionCheck = viewport;
                                     }
                                 }
-                                if (frontCheck.get_BoundingBox(doc.GetElement(frontCheck.OwnerViewId) as View).Max.X > sectionCheck.get_BoundingBox(doc.GetElement(sectionCheck.OwnerViewId) as View).Min.X)
-                                {
-                                    ElementTransformUtils.MoveElement(doc, sectionCheck.Id, new XYZ(frontCheck.get_BoundingBox(doc.GetElement(frontCheck.OwnerViewId) as View).Max.X - sectionCheck.get_BoundingBox(doc.GetElement(sectionCheck.OwnerViewId) as View).Min.X + 10 / 304.8, 0, 0));
-                                }
+                                ElementTransformUtils.MoveElement(doc, sectionCheck.Id, new XYZ(frontCheck.get_BoundingBox(doc.GetElement(frontCheck.OwnerViewId) as View).Max.X - sectionCheck.get_BoundingBox(doc.GetElement(sectionCheck.OwnerViewId) as View).Min.X + 10 / 304.8, 0, 0));
+                                ElementTransformUtils.MoveElement(doc, planCheck.Id, new XYZ(0, frontCheck.get_BoundingBox(doc.GetElement(frontCheck.OwnerViewId) as View).Min.Y - planCheck.get_BoundingBox(doc.GetElement(planCheck.OwnerViewId) as View).Max.Y - 10 / 304.8, 0));
+                                ElementTransformUtils.MoveElement(doc, titleBlock.Id, new XYZ(-((titleBlock.Location as LocationPoint).Point.X - titleBlock.get_Parameter(BuiltInParameter.SHEET_WIDTH).AsDouble() - frontCheck.get_BoundingBox(doc.GetElement(frontCheck.OwnerViewId) as View).Min.X + 30 / 304.8), 0, 0));   
                             }
                                 
                             if (n == 0)
