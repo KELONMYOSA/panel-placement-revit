@@ -148,6 +148,19 @@ namespace PanelPlacement
                 }
                 else
                 {
+                    double offsetTextPlan;
+                    double offsetTextFrontAndSection;
+                    try
+                    {
+                        offsetTextPlan = double.Parse(uiAssembliesViews.selectedOffsetPlan) / 304.8;
+                        offsetTextFrontAndSection = double.Parse(uiAssembliesViews.selectedOffsetFrontAndSection) / 304.8;
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Введите корректные значения отступа заголовка!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return Result.Cancelled;
+                    }
+
                     //Получаем id выбранных шаблонов
                     ElementId templatePlan = ElementId.InvalidElementId;
                     ElementId templateFront = ElementId.InvalidElementId;
@@ -170,6 +183,11 @@ namespace PanelPlacement
                             templateSection = view.Id;
                         }
                     }
+                    if (templatePlan.Equals(ElementId.InvalidElementId) || templateFront.Equals(ElementId.InvalidElementId) || templateSection.Equals(ElementId.InvalidElementId))
+                    {
+                        MessageBox.Show("Необходимо выбрать шаблоны видов!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return Result.Cancelled;
+                    }
 
                     string allCreatedViewsString = "Виды созданы:\n";
                     //Создаем сборки и виды
@@ -187,6 +205,9 @@ namespace PanelPlacement
                             FamilyInstance createdElement = doc.Create.NewFamilyInstance(startPlacementPoint, currentType, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
                             createdElement.LookupParameter("Не включать в спецификацию").Set(1);
                             transaction.Commit();
+                            
+                            double offsetPanelPlan = currentType.LookupParameter("ADSK_Размер_Толщина").AsDouble() / 2;
+                            double offsetPanelFrontAndSection = currentType.LookupParameter("ADSK_Размер_Высота").AsDouble() / 2;
 
                             if (Math.Round(startPlacementPoint.X, 3) == Math.Round(-50000 / 304.8, 3))
                             {
@@ -250,13 +271,13 @@ namespace PanelPlacement
                                             return Result.Cancelled;
                                         }
                                         XYZ planTextXYZ = viewPlan.Origin + new XYZ((viewPlan.get_BoundingBox(doc.GetElement(viewPlan.GetPrimaryViewId()) as View).Max.X - viewPlan.get_BoundingBox(doc.GetElement(viewPlan.GetPrimaryViewId()) as View).Min.X) / 2,
-                                            viewPlan.get_BoundingBox(doc.GetElement(viewPlan.GetPrimaryViewId()) as View).Max.Y - viewPlan.get_BoundingBox(doc.GetElement(viewPlan.GetPrimaryViewId()) as View).Min.Y, 0);
-                                        TextNote planTextNote = TextNote.Create(doc, viewPlan.Id, planTextXYZ, type, textNoteType.Id);
-                                        XYZ frontTextXYZ = new XYZ(viewSection.Origin.X, viewFront.Origin.Y, viewFront.Origin.Z + viewFront.get_BoundingBox(doc.GetElement(viewFront.GetPrimaryViewId()) as View).Max.Z - viewFront.get_BoundingBox(doc.GetElement(viewFront.GetPrimaryViewId()) as View).Min.Z);
+                                            (viewPlan.get_BoundingBox(doc.GetElement(viewPlan.GetPrimaryViewId()) as View).Max.Y - viewPlan.get_BoundingBox(doc.GetElement(viewPlan.GetPrimaryViewId()) as View).Min.Y) / 2 + offsetPanelPlan + offsetTextPlan, 0);
+                                        TextNote planTextNote = TextNote.Create(doc, viewPlan.Id, planTextXYZ, "1-1", textNoteType.Id);
+                                        XYZ frontTextXYZ = new XYZ(viewSection.Origin.X, viewFront.Origin.Y, viewFront.Origin.Z + (viewFront.get_BoundingBox(doc.GetElement(viewFront.GetPrimaryViewId()) as View).Max.Z - viewFront.get_BoundingBox(doc.GetElement(viewFront.GetPrimaryViewId()) as View).Min.Z) / 2 + offsetPanelFrontAndSection + offsetTextFrontAndSection);
                                         TextNote frontTextNote = TextNote.Create(doc, viewFront.Id, frontTextXYZ, type, textNoteType.Id);
                                         XYZ sectionTextXYZ = viewFront.Origin + new XYZ(0, (viewFront.get_BoundingBox(doc.GetElement(viewFront.GetPrimaryViewId()) as View).Max.Y - viewFront.get_BoundingBox(doc.GetElement(viewFront.GetPrimaryViewId()) as View).Min.Y) / 2,
-                                            (viewFront.get_BoundingBox(doc.GetElement(viewFront.GetPrimaryViewId()) as View).Max.Z - viewFront.get_BoundingBox(doc.GetElement(viewFront.GetPrimaryViewId()) as View).Min.Z));
-                                        TextNote sectionTextNote = TextNote.Create(doc, viewSection.Id, sectionTextXYZ, type, textNoteType.Id);
+                                            (viewFront.get_BoundingBox(doc.GetElement(viewFront.GetPrimaryViewId()) as View).Max.Z - viewFront.get_BoundingBox(doc.GetElement(viewFront.GetPrimaryViewId()) as View).Min.Z) / 2 + offsetPanelFrontAndSection + offsetTextFrontAndSection);
+                                        TextNote sectionTextNote = TextNote.Create(doc, viewSection.Id, sectionTextXYZ, "2-2", textNoteType.Id);
 
                                         transaction.Commit();
                                         
@@ -265,13 +286,13 @@ namespace PanelPlacement
                                             transaction.Start(type + " - Текст заголовка");
 
                                             XYZ planTextOffset = new XYZ((planTextNote.get_BoundingBox(doc.GetElement(planTextNote.OwnerViewId) as View).Min.X - planTextNote.get_BoundingBox(doc.GetElement(planTextNote.OwnerViewId) as View).Max.X) / 2,
-                                            planTextNote.get_BoundingBox(doc.GetElement(planTextNote.OwnerViewId) as View).Max.Y - planTextNote.get_BoundingBox(doc.GetElement(planTextNote.OwnerViewId) as View).Min.Y, 0);
+                                            (planTextNote.get_BoundingBox(doc.GetElement(planTextNote.OwnerViewId) as View).Max.Y - planTextNote.get_BoundingBox(doc.GetElement(planTextNote.OwnerViewId) as View).Min.Y) / 2, 0);
                                             ElementTransformUtils.MoveElement(doc, planTextNote.Id, planTextOffset);
-                                            XYZ frontTextOffset = new XYZ((frontTextNote.get_BoundingBox(doc.GetElement(frontTextNote.OwnerViewId) as View).Min.X - frontTextNote.get_BoundingBox(doc.GetElement(frontTextNote.OwnerViewId) as View).Max.X),
-                                            0, frontTextNote.get_BoundingBox(doc.GetElement(frontTextNote.OwnerViewId) as View).Max.Z - frontTextNote.get_BoundingBox(doc.GetElement(frontTextNote.OwnerViewId) as View).Min.Z) / 2;
+                                            XYZ frontTextOffset = new XYZ((frontTextNote.get_BoundingBox(doc.GetElement(frontTextNote.OwnerViewId) as View).Min.X - frontTextNote.get_BoundingBox(doc.GetElement(frontTextNote.OwnerViewId) as View).Max.X) / 2,
+                                            0, (frontTextNote.get_BoundingBox(doc.GetElement(frontTextNote.OwnerViewId) as View).Max.Z - frontTextNote.get_BoundingBox(doc.GetElement(frontTextNote.OwnerViewId) as View).Min.Z) / 2);
                                             ElementTransformUtils.MoveElement(doc, frontTextNote.Id, frontTextOffset);
-                                            XYZ sectionTextOffset = new XYZ(0, (sectionTextNote.get_BoundingBox(doc.GetElement(sectionTextNote.OwnerViewId) as View).Min.Y - sectionTextNote.get_BoundingBox(doc.GetElement(sectionTextNote.OwnerViewId) as View).Max.Y) / 2,
-                                            (sectionTextNote.get_BoundingBox(doc.GetElement(sectionTextNote.OwnerViewId) as View).Max.Z - sectionTextNote.get_BoundingBox(doc.GetElement(sectionTextNote.OwnerViewId) as View).Min.Z)) / 2;
+                                            XYZ sectionTextOffset = new XYZ(0, (sectionTextNote.get_BoundingBox(doc.GetElement(sectionTextNote.OwnerViewId) as View).Min.Y - sectionTextNote.get_BoundingBox(doc.GetElement(sectionTextNote.OwnerViewId) as View).Max.Y) / 4,
+                                            (sectionTextNote.get_BoundingBox(doc.GetElement(sectionTextNote.OwnerViewId) as View).Max.Z - sectionTextNote.get_BoundingBox(doc.GetElement(sectionTextNote.OwnerViewId) as View).Min.Z) / 2);
                                             ElementTransformUtils.MoveElement(doc, sectionTextNote.Id, sectionTextOffset);
 
                                             transaction.Commit();

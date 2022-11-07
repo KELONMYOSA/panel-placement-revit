@@ -4,8 +4,8 @@
                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                    mc:Ignorable="d" 
-                   Width="300" Height="400"
-                   d:DesignHeight="400" d:DesignWidth="300">
+                   Width="300" Height="420"
+                   d:DesignHeight="420" d:DesignWidth="300">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -16,6 +16,11 @@
         <Label x:Name="Label2" Content="План:" HorizontalAlignment="Left" Height="25" Margin="15,40,0,0" VerticalAlignment="Top" Width="150"/>
         <Label x:Name="Label3" Content="Вид спереди:" HorizontalAlignment="Left" Height="25" Margin="15,110,0,0" VerticalAlignment="Top" Width="250"/>
         <Label x:Name="Label4" Content="Разрез:" HorizontalAlignment="Left" Height="25" Margin="15,180,0,0" VerticalAlignment="Top" Width="250"/>
+        <Label x:Name="Label5" Content="Отступ заголовка от панели на виде:" HorizontalAlignment="Left" Height="25" Margin="15,250,0,0" VerticalAlignment="Top" Width="250"/>
+        <Label x:Name="Label6" Content="План:" HorizontalAlignment="Left" Height="25" Margin="15,280,0,0" VerticalAlignment="Top" Width="150"/>
+        <Label x:Name="Label7" Content="Вид спереди и разрез:" HorizontalAlignment="Left" Height="25" Margin="15,310,0,0" VerticalAlignment="Top" Width="150"/>
+        <TextBox x:Name="offsetPlan" HorizontalAlignment="Left" Height="20" Margin="170,280,0,0" TextWrapping="Wrap" Text="100" TextAlignment="Center" VerticalAlignment="Top" Width="100"/>
+        <TextBox x:Name="offsetFrontAndSection" HorizontalAlignment="Left" Height="20" Margin="170,315,0,0" TextWrapping="Wrap" Text="300" TextAlignment="Center" VerticalAlignment="Top" Width="100"/>
         <ComboBox Name="comboBox1"
             HorizontalAlignment="Left"
             Height="25"

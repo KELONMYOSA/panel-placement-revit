@@ -3,6 +3,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using View = Autodesk.Revit.DB.View;
 
@@ -144,7 +145,7 @@ namespace PanelPlacement
                                 .Where(t => t.get_Parameter(BuiltInParameter.SHEET_NUMBER).AsString().Equals(newSheet.SheetNumber))
                                 .First();
                             BoundingBoxXYZ titleBlockLocation = titleBlockTemplate.get_BoundingBox(doc.GetElement(titleBlockTemplate.OwnerViewId) as View);
-                            ElementTransformUtils.MoveElement(doc, titleBlock.Id, titleBlockLocation.Min);
+                            ElementTransformUtils.MoveElement(doc, titleBlock.Id, new XYZ(titleBlockLocation.Max.X, titleBlockLocation.Min.Y, titleBlockLocation.Min.Z));
 
                             byte n = 0;
                             foreach (Viewport viewport in placedViewports)
@@ -191,6 +192,35 @@ namespace PanelPlacement
                                     }
                                 }
                             }
+
+                            //Проверяем пересекаются ли видовые экраны
+                            if (viewFront != null && viewSection != null)
+                            {
+                                IList<ElementId> placedViewportIdsCheck = newSheet.GetAllViewports() as IList<ElementId>;
+                                IList<Viewport> placedViewportsCheck = new List<Viewport>();
+                                foreach (ElementId viewportId in placedViewportIdsCheck)
+                                {
+                                    placedViewportsCheck.Add(doc.GetElement(viewportId) as Viewport);
+                                }
+                                Viewport frontCheck = null;
+                                Viewport sectionCheck = null;
+                                foreach (Viewport viewport in placedViewportsCheck)
+                                {
+                                    if (doc.GetElement(viewport.ViewId).Name.StartsWith("Вид спереди"))
+                                    {
+                                        frontCheck = viewport;
+                                    }
+                                    if (doc.GetElement(viewport.ViewId).Name.StartsWith("Разрез"))
+                                    {
+                                        sectionCheck = viewport;
+                                    }
+                                }
+                                if (frontCheck.get_BoundingBox(doc.GetElement(frontCheck.OwnerViewId) as View).Max.X > sectionCheck.get_BoundingBox(doc.GetElement(sectionCheck.OwnerViewId) as View).Min.X)
+                                {
+                                    ElementTransformUtils.MoveElement(doc, sectionCheck.Id, new XYZ(frontCheck.get_BoundingBox(doc.GetElement(frontCheck.OwnerViewId) as View).Max.X - sectionCheck.get_BoundingBox(doc.GetElement(sectionCheck.OwnerViewId) as View).Min.X + 10 / 304.8, 0, 0));
+                                }
+                            }
+                                
                             if (n == 0)
                             {
                                 MessageBox.Show("На шаблоне листа нет необходимых видов!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);

@@ -14,6 +14,22 @@ namespace PanelPlacement
             comboBox3.ItemsSource = viewTemplates;
         }
 
+        public string selectedOffsetPlan
+        {
+            get
+            {
+                return offsetPlan.Text;
+            }
+        }
+
+        public string selectedOffsetFrontAndSection
+        {
+            get
+            {
+                return offsetFrontAndSection.Text;
+            }
+        }
+
         public string selectedTemplatePlan
         {
             get
