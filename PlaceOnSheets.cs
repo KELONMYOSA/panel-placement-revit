@@ -144,6 +144,15 @@ namespace PanelPlacement
                                 .WhereElementIsNotElementType()
                                 .Where(t => t.get_Parameter(BuiltInParameter.SHEET_NUMBER).AsString().Equals(newSheet.SheetNumber))
                                 .First();
+                            try
+                            {
+                                titleBlock.LookupParameter("Формат А").Set(titleBlockTemplate.LookupParameter("Формат А").AsInteger());
+                            }
+                            catch
+                            {
+                                MessageBox.Show("Не найден параметр рамки \"Формат A\"!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return Result.Cancelled;
+                            }
                             BoundingBoxXYZ titleBlockLocation = titleBlockTemplate.get_BoundingBox(doc.GetElement(titleBlockTemplate.OwnerViewId) as View);
                             ElementTransformUtils.MoveElement(doc, titleBlock.Id, new XYZ(titleBlockLocation.Max.X, titleBlockLocation.Min.Y, titleBlockLocation.Min.Z));
 
