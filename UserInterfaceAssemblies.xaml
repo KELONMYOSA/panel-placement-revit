@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
         
         <Button x:Name="BtnCreate" Grid.Row="1"
-                Width="120"
+                Width="100"
                 Click="ButtonCreate"
                 Content=" ОК "
                 HorizontalAlignment="Center"
@@ -24,6 +24,12 @@
                 Click="ButtonAll"
                 Content=" Все "
                 HorizontalAlignment="Left"
+                VerticalAlignment="Stretch"/>
+        <Button x:Name="BtnSelect" Grid.Row="1"
+                Width="70"
+                Click="ButtonSelect"
+                Content=" Выбрать "
+                HorizontalAlignment="Right"
                 VerticalAlignment="Stretch"/>
         <ListBox x:Name="TypesListBox"
                  SelectionMode="Extended"/>

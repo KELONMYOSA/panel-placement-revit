@@ -7,6 +7,8 @@ namespace PanelPlacement
 {
     public partial class UserInterfaceAssemblies : Window
     {
+        bool assembliesSelection = false;
+
         public UserInterfaceAssemblies(IList<string> types)
         {
             InitializeComponent();
@@ -31,6 +33,21 @@ namespace PanelPlacement
         {
             DialogResult = true;
             Close();
+        }
+
+        private void ButtonSelect(Object sender, EventArgs e)
+        {
+            DialogResult = true;
+            assembliesSelection = true;
+            Close();
+        }
+
+        public bool assembliesSelectionMode
+        {
+            get
+            {
+                return assembliesSelection;
+            }
         }
     }
 }

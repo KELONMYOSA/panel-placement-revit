@@ -1,6 +1,7 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,11 @@ namespace PanelPlacement
     [Transaction(TransactionMode.Manual)]
     class CreateAssembliesAndViews : IExternalCommand
     {
+        public static IList<string> unusedTypesOfPanels = new List<string>();
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            unusedTypesOfPanels.Clear();
             Document doc = commandData.Application.ActiveUIDocument.Document;
 
             //Поиск начальной координаты для вставки примеров типоразмера
@@ -64,7 +68,6 @@ namespace PanelPlacement
             }
 
             //Собираем не использованные и не пустые типоразмеры
-            IList<string> unusedTypesOfPanels = new List<string>();
             IList<string> createdAssemblies = new FilteredElementCollector(doc)
                 .OfCategory(BuiltInCategory.OST_Assemblies)
                 .Select(a => a.Name)
@@ -118,7 +121,29 @@ namespace PanelPlacement
             }
             else
             {
-                IList<string> selectedTypes = uiAssemblies.selectedTypes;
+                IList<string> selectedTypes = new List<string>();
+                if (uiAssemblies.assembliesSelectionMode == true)
+                {
+                    Selection sel = commandData.Application.ActiveUIDocument.Selection;
+                    StructuralFramingSelectionFilter structuralFramingSelectionFilter = new StructuralFramingSelectionFilter();
+                    IList<Reference> structuralFramingRefList = null;
+                    try
+                    {
+                        structuralFramingRefList = sel.PickObjects(ObjectType.Element, structuralFramingSelectionFilter, "Выберите стены!");
+                    }
+                    catch (Autodesk.Revit.Exceptions.OperationCanceledException)
+                    {
+                        return Result.Cancelled;
+                    }
+                    foreach (Reference refElem in structuralFramingRefList)
+                    {
+                        selectedTypes.Add((doc.GetElement(refElem).Name));
+                    }
+                }
+                else
+                {
+                   selectedTypes = uiAssemblies.selectedTypes;
+                }
 
                 if (selectedTypes.Count == 0)
                 {
