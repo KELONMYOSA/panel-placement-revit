@@ -75,6 +75,15 @@ namespace PanelPlacement
             btn3.LargeImage = ConverPngToBitmap(Properties.Resources.PlaceOnSheets);
             btn3.ToolTip = "Разместить виды на листах";
 
+            PushButton btn4 = panelViews.AddItem(new PushButtonData(
+                            "UpdateNote",
+                            "Обновить примечание",
+                            assemblyPath,
+                            "PanelPlacement.UpdateNote")
+                            ) as PushButton;
+            btn4.LargeImage = ConverPngToBitmap(Properties.Resources.UpdateNote);
+            btn4.ToolTip = "Обновить примечание на листах";
+
             return Result.Succeeded;
         }
         public Result OnShutdown(UIControlledApplication application)
