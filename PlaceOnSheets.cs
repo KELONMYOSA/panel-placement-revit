@@ -310,7 +310,11 @@ namespace PanelPlacement
                                             selectedParamInAssembly = selectedParam.AsValueString();
                                             if (selectedParamInAssembly == null)
                                             {
-                                                selectedParamInAssembly = "***нет значения***";
+                                                selectedParamInAssembly = selectedParam.AsString();
+                                                if (selectedParamInAssembly == null)
+                                                {
+                                                    selectedParamInAssembly = "***нет значения***";
+                                                } 
                                             }
                                         }
                                     }
@@ -319,7 +323,11 @@ namespace PanelPlacement
                                         selectedParamInAssembly = selectedParam.AsValueString();
                                         if (selectedParamInAssembly == null)
                                         {
-                                            selectedParamInAssembly = "***нет значения***";
+                                            selectedParamInAssembly = selectedParam.AsString();
+                                            if (selectedParamInAssembly == null)
+                                            {
+                                                selectedParamInAssembly = "***нет значения***";
+                                            }
                                         }
                                     }
 
