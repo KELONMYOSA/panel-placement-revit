@@ -53,8 +53,38 @@ namespace PanelPlacement
             sheetsTemplates = sheetsTemplates.OrderBy(q => q).ToList();
             createdAssemblies = createdAssemblies.OrderBy(q => q).ToList();
 
+            //Собираем параметры панели
+            IList<string> paramListForAssemble = new List<string>();
+            foreach (string assembly in createdAssemblies)
+            {
+                AssemblyInstance assemblyElem = new FilteredElementCollector(doc)
+                                .OfCategory(BuiltInCategory.OST_Assemblies)
+                                .WhereElementIsNotElementType()
+                                .Where(a => a.Name == assembly)
+                                .Cast<AssemblyInstance>()
+                                .First();
+                ParameterSet paramsForAssemble = doc.GetElement(assemblyElem.GetMemberIds().First()).Parameters;
+                foreach (Parameter param in paramsForAssemble)
+                {
+                    if (!paramListForAssemble.Contains(param.Definition.Name))
+                    {
+                        paramListForAssemble.Add(param.Definition.Name);
+                    }
+                }
+
+                ParameterSet paramsForAssembleType = (doc.GetElement(assemblyElem.GetMemberIds().First()) as FamilyInstance).Symbol.Parameters;
+                foreach (Parameter param in paramsForAssembleType)
+                {
+                    if (!paramListForAssemble.Contains(param.Definition.Name))
+                    {
+                        paramListForAssemble.Add(param.Definition.Name);
+                    }
+                }
+            }
+            paramListForAssemble = paramListForAssemble.OrderBy(q => q).ToList();
+
             //Вызываем окно
-            var uiSheets = new UserInterfaceSheets(createdAssemblies, sheetsTemplates);
+            var uiSheets = new UserInterfaceSheets(createdAssemblies, sheetsTemplates, paramListForAssemble);
             bool tdRes = (bool)uiSheets.ShowDialog();
 
             if (tdRes == false)
@@ -238,6 +268,76 @@ namespace PanelPlacement
                             {
                                 MessageBox.Show("На шаблоне листа нет необходимых видов!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                                 return Result.Cancelled;
+                            }
+
+                            // Создание примечания на листе
+                            if (uiSheets.selectedParam != null)
+                            {
+                                try
+                                {
+                                    Element firstAssemblyFromView = new FilteredElementCollector(doc, (doc.GetElement((newSheet.GetAllViewports() as IList<ElementId>).First()) as Viewport).ViewId)
+                                            .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                                            .WhereElementIsNotElementType()
+                                            .First();
+                                    ParameterSet firstAssemblyFromViewParams = firstAssemblyFromView.Parameters;
+                                    Parameter selectedParam = null;
+                                    foreach (Parameter param in firstAssemblyFromViewParams)
+                                    {
+                                        if (param.Definition.Name == uiSheets.selectedParam)
+                                        {
+                                            selectedParam = param;
+                                            break;
+                                        }
+                                    }
+                                    string selectedParamInAssembly;
+                                    if (selectedParam == null)
+                                    {
+                                        ParameterSet firstAssemblyFromViewParamsType = (firstAssemblyFromView as FamilyInstance).Symbol.Parameters;
+                                        foreach (Parameter param in firstAssemblyFromViewParamsType)
+                                        {
+                                            if (param.Definition.Name == uiSheets.selectedParam)
+                                            {
+                                                selectedParam = param;
+                                                break;
+                                            }
+                                        }
+                                        if (selectedParam == null)
+                                        {
+                                            selectedParamInAssembly = "***нет параметра***";
+                                        }
+                                        else
+                                        {
+                                            selectedParamInAssembly = selectedParam.AsValueString();
+                                            if (selectedParamInAssembly == null)
+                                            {
+                                                selectedParamInAssembly = "***нет значения***";
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        selectedParamInAssembly = selectedParam.AsValueString();
+                                        if (selectedParamInAssembly == null)
+                                        {
+                                            selectedParamInAssembly = "***нет значения***";
+                                        }
+                                    }
+
+                                    TextNote textNoteTemplate = new FilteredElementCollector(doc)
+                                            .OfCategory(BuiltInCategory.OST_TextNotes)
+                                            .WhereElementIsNotElementType()
+                                            .Cast<TextNote>()
+                                            .Where(t => t.OwnerViewId.Equals(sheetTemplate.Id))
+                                            .Where(t => t.Text.Contains("Примечание"))
+                                            .First();
+                                    TextNote createdTextNote = TextNote.Create(doc, newSheet.Id, textNoteTemplate.Coord + (titleBlock.get_BoundingBox(doc.GetElement(titleBlock.OwnerViewId) as View).Min - titleBlockTemplate.get_BoundingBox(doc.GetElement(titleBlockTemplate.OwnerViewId) as View).Min), selectedParamInAssembly, textNoteTemplate.TextNoteType.Id);
+                                    createdTextNote.Width = textNoteTemplate.Width;
+                                }
+                                catch
+                                {
+                                    MessageBox.Show("На шаблоне листа нет текста, который содержит \"Примечание\"!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    return Result.Cancelled;
+                                }
                             }
 
                             transaction.Commit();

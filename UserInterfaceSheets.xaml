@@ -4,8 +4,8 @@
                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                    mc:Ignorable="d" 
-                   Width="300" Height="450"
-                   d:DesignHeight="450" d:DesignWidth="300">
+                   Width="300" Height="500"
+                   d:DesignHeight="500" d:DesignWidth="300">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -25,15 +25,22 @@
                 Content=" Все "
                 HorizontalAlignment="Left" Margin="0,0,0,0" Grid.RowSpan="2"/>
         <ListBox x:Name="AssembliesListBox"
-                 SelectionMode="Extended" Grid.RowSpan="2" Margin="15,0,15,0" VerticalAlignment="Bottom" Height="280"/>
+                 SelectionMode="Extended" Grid.RowSpan="2" Margin="15,0,15,100" VerticalAlignment="Bottom" Height="230"/>
         <Label x:Name="Label1" Content="Выберите шаблон листа:" HorizontalAlignment="Left" Height="25" Margin="15,5,0,0" VerticalAlignment="Top" Width="250"/>
         <Label x:Name="Label2" Content="Выберите сборки:" HorizontalAlignment="Left" Height="25" Margin="15,70,0,0" VerticalAlignment="Top" Width="250"/>
+        <Label x:Name="Label3" Content="Выберите параметр для примечания:" HorizontalAlignment="Left" Height="25" Margin="15,0,0,60" VerticalAlignment="Bottom" Width="250" Grid.Row="1"/>
         <ComboBox Name="SheetTemplates"
             HorizontalAlignment="Left"
             Height="25"
             Margin="15,0,0,55"
             VerticalAlignment="Bottom"
             Width="255" Grid.Row="0"/>
+        <ComboBox Name="SelectionParam"
+            HorizontalAlignment="Left"
+            Height="25"
+            Margin="15,0,0,30"
+            VerticalAlignment="Bottom"
+            Width="255" Grid.Row="1"/>
     </Grid>
 
 </Window>

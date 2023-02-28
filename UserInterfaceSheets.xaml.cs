@@ -7,11 +7,12 @@ namespace PanelPlacement
 {
     public partial class UserInterfaceSheets : Window
     {
-        public UserInterfaceSheets(IList<string> assemblies, IList<string> sheets)
+        public UserInterfaceSheets(IList<string> assemblies, IList<string> sheets, IList<string> assembleParams)
         {
             InitializeComponent();
             AssembliesListBox.ItemsSource = assemblies;
             SheetTemplates.ItemsSource = sheets;
+            SelectionParam.ItemsSource = assembleParams;
         }
 
         public IList<string> selectedAssemblies
@@ -27,6 +28,14 @@ namespace PanelPlacement
             get
             {
                 return SheetTemplates.SelectedItem as string;
+            }
+        }
+
+        public string selectedParam
+        {
+            get
+            {
+                return SelectionParam.SelectedItem as string;
             }
         }
 

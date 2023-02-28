@@ -221,14 +221,26 @@ namespace PanelPlacement
                         using (Transaction transaction = new Transaction(doc))
                         {
                             transaction.Start(type + " - Создание шаблонного экземпляра типа");
+                            FamilyInstance framingToCopy = new FilteredElementCollector(doc)
+                                .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                                .WhereElementIsNotElementType()
+                                .Cast<FamilyInstance>()
+                                .Where(f => f.Symbol.Name.Equals(type))
+                                .First();
+                            Element createdElement = doc.GetElement(ElementTransformUtils.CopyElement(doc, framingToCopy.Id, startPlacementPoint - (framingToCopy.Location as LocationPoint).Point).First());
+                            if ((createdElement.Location as LocationPoint).Rotation != 0)
+                            {
+                                ElementTransformUtils.RotateElement(doc, createdElement.Id, Line.CreateUnbound((createdElement.Location as LocationPoint).Point, XYZ.BasisZ), -(createdElement.Location as LocationPoint).Rotation);
+                            }
+                            createdElement.LookupParameter("Не включать в спецификацию").Set(1);
+
                             FamilySymbol currentType = new FilteredElementCollector(doc)
                                 .OfCategory(BuiltInCategory.OST_StructuralFraming)
                                 .WhereElementIsElementType()
                                 .Where(p => p.Name.Equals(type))
                                 .Select(p => p as FamilySymbol)
                                 .First();
-                            FamilyInstance createdElement = doc.Create.NewFamilyInstance(startPlacementPoint, currentType, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
-                            createdElement.LookupParameter("Не включать в спецификацию").Set(1);
+
                             transaction.Commit();
                             
                             double offsetPanelPlan = currentType.LookupParameter("ADSK_Размер_Толщина").AsDouble() / 2;
