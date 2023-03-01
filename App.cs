@@ -67,22 +67,31 @@ namespace PanelPlacement
             btn2.ToolTip = "Создание сборок и видов";
 
             PushButton btn3 = panelViews.AddItem(new PushButtonData(
+                            "FindDuplicateAssemblies",
+                            "Найти дубликаты",
+                            assemblyPath,
+                            "PanelPlacement.FindDuplicateAssemblies")
+                            ) as PushButton;
+            btn3.LargeImage = ConverPngToBitmap(Properties.Resources.FindDuplicateAssemblies);
+            btn3.ToolTip = "Найти дубликаты сборок в проекте";
+
+            PushButton btn4 = panelViews.AddItem(new PushButtonData(
                             "CreateSheets",
                             "Разместить на листы",
                             assemblyPath,
                             "PanelPlacement.PlaceOnSheets")
                             ) as PushButton;
-            btn3.LargeImage = ConverPngToBitmap(Properties.Resources.PlaceOnSheets);
-            btn3.ToolTip = "Разместить виды на листах";
+            btn4.LargeImage = ConverPngToBitmap(Properties.Resources.PlaceOnSheets);
+            btn4.ToolTip = "Разместить виды на листах";
 
-            PushButton btn4 = panelViews.AddItem(new PushButtonData(
+            PushButton btn5 = panelViews.AddItem(new PushButtonData(
                             "UpdateNote",
                             "Обновить примечание",
                             assemblyPath,
                             "PanelPlacement.UpdateNote")
                             ) as PushButton;
-            btn4.LargeImage = ConverPngToBitmap(Properties.Resources.UpdateNote);
-            btn4.ToolTip = "Обновить примечание на листах";
+            btn5.LargeImage = ConverPngToBitmap(Properties.Resources.UpdateNote);
+            btn5.ToolTip = "Обновить примечание на листах";
 
             return Result.Succeeded;
         }
