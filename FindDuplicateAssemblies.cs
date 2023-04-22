@@ -78,6 +78,7 @@ namespace PanelPlacement
             { 
                 int findMode = ui.findMode;
                 string comparingParam = ui.comparingParam;
+                IList<string> comparingParamsList = ui.comparingParamsList;
                 IList<string> comparingDocsTitles = ui.comparingDocs;
                 IList<Document> listOfCamparingDocs = docs.Where(x => comparingDocsTitles.Contains(x.Title)).ToList();
                 listOfCamparingDocs.Add(doc);
@@ -273,11 +274,7 @@ namespace PanelPlacement
                                 ParameterSet typeParams = type.Parameters;
                                 foreach (Parameter param in typeParams)
                                 {
-                                    IList<string> geometryParams = new List<string>();
-                                    geometryParams.Add("ADSK_Размер_Высота");
-                                    geometryParams.Add("ADSK_Размер_Ширина");
-                                    geometryParams.Add("ADSK_Размер_Толщина");
-                                    if (!geometryParams.Contains(param.Definition.Name)) { continue; }
+                                    if (!comparingParamsList.Contains(param.Definition.Name)) { continue; }
 
                                     string paramValue = param.AsValueString();
                                     if (paramValue == null)
@@ -290,8 +287,11 @@ namespace PanelPlacement
                                     }
                                     hash += (paramValue + param.Definition.Name).GetHashCode();
                                 }
-                                hashOfTypes.Add(hash);
-                                allTypeNames.Add(type.Name);
+                                if (hash != 0)
+                                {
+                                    hashOfTypes.Add(hash);
+                                    allTypeNames.Add(type.Name);
+                                }
                             }
                         }
 

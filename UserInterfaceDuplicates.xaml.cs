@@ -5,6 +5,9 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Controls;
 using ComboBox = System.Windows.Controls.ComboBox;
+using Autodesk.Revit.UI;
+using System.IO;
+using System.Reflection;
 
 namespace PanelPlacement
 {
@@ -66,6 +69,25 @@ namespace PanelPlacement
                 }
 
                 return docsOut;
+            }
+        }
+
+        public IList<string> comparingParamsList
+        {
+            get
+            {
+                IList<string> lines = new List<string>();
+                string assemplyPath = Assembly.GetExecutingAssembly().Location;
+                string path = Path.GetDirectoryName(assemplyPath) + @"\PanelPlacementCompareParams.txt";
+                FileStream file = new FileStream(path, FileMode.Open);
+                StreamReader readFile = new StreamReader(file);
+                while (!readFile.EndOfStream)
+                {
+                    lines.Add(readFile.ReadLine());
+                }
+                readFile.Close();
+
+                return lines;
             }
         }
 
@@ -167,6 +189,23 @@ namespace PanelPlacement
                 WindowGrid.RowDefinitions[0].Height = new GridLength(WindowGrid.RowDefinitions[0].Height.Value - 30);
                 paramSelectionIsActive = false;
             }
+        }
+
+        private void ClickEditParams(Object sender, EventArgs e)
+        {
+            IList<string> lines = new List<string>();
+            string assemplyPath = Assembly.GetExecutingAssembly().Location;
+            string path = Path.GetDirectoryName(assemplyPath) + @"\PanelPlacementCompareParams.txt";
+            FileStream file = new FileStream(path, FileMode.Open);
+            StreamReader readFile = new StreamReader(file);
+            while (!readFile.EndOfStream)
+            {
+                lines.Add(readFile.ReadLine());
+            }
+            readFile.Close();
+
+            var uiEdit = new UserInterfaceDuplicatesParams(lines);
+            bool tdEdit = (bool)uiEdit.ShowDialog();
         }
     }
 }

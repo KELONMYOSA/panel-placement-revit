@@ -38,8 +38,11 @@
             Height="25"
             Margin="15,70,0,0"
             VerticalAlignment="Top"
-            Width="255" Grid.Row="0"
-            Content="Геометрия"/>
+            Width="130" Grid.Row="0"
+            Content="Набор параметров "/>
+        <TextBlock Margin="140,70,0,0" Height="25" Width="60" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="0">
+            <Hyperlink Click="ClickEditParams">(изменить)</Hyperlink>
+        </TextBlock>
         <RadioButton Name="OneParam"
             Click="ClickOneParam"
             HorizontalAlignment="Left"
