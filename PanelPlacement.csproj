@@ -10,6 +10,8 @@
     <None Remove="Resources\PlaceOnSheets.png" />
     <None Remove="UserInterfaceAssemblies.xaml" />
     <None Remove="UserInterfaceCreate.xaml" />
+    <None Remove="UserInterfaceDuplicates.xaml" />
+    <None Remove="UserInterfaceDuplicatesResults.xaml" />
     <None Remove="UserInterfaceNote.xaml" />
     <None Remove="UserInterfaceSheets.xaml" />
     <None Remove="UserInterfaceViews.xaml" />
@@ -26,6 +28,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Include="UserInterfaceDuplicates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserInterfaceDuplicatesResults.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserInterfaceNote.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -84,6 +94,12 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="UserInterfaceDuplicates.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="UserInterfaceDuplicatesResults.xaml.cs">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Update="UserInterfaceNote.xaml.cs">
       <SubType>Code</SubType>

@@ -11,24 +11,25 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="120"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="100"/>
             <RowDefinition Height="30px"/>
         </Grid.RowDefinitions>
 
-        <Button x:Name="BtnCreate" Grid.Row="2"
+        <Button x:Name="BtnCreate" Grid.Row="3"
                 Width="120"
                 Click="ButtonCreate"
                 Content=" Создать "
                 HorizontalAlignment="Center" Margin="0,0,0,0" Grid.RowSpan="2"/>
-        <Button x:Name="BtnAll" Grid.Row="2"
+        <Button x:Name="BtnAll" Grid.Row="3"
                 Width="35"
                 Click="ButtonAll"
                 Content=" Все "
                 HorizontalAlignment="Left" Margin="0,0,0,0" Grid.RowSpan="2"/>
         <ListBox x:Name="AssembliesListBox"
-                 SelectionMode="Extended" Grid.RowSpan="2" Margin="15,0,15,100" VerticalAlignment="Bottom" Height="230"/>
+                 SelectionMode="Extended" Grid.Row="1"/>
         <Label x:Name="Label1" Content="Выберите шаблон листа:" HorizontalAlignment="Left" Height="25" Margin="15,5,0,0" VerticalAlignment="Top" Width="250"/>
         <Label x:Name="Label2" Content="Выберите сборки:" HorizontalAlignment="Left" Height="25" Margin="15,70,0,0" VerticalAlignment="Top" Width="250"/>
-        <Label x:Name="Label3" Content="Выберите параметр для примечания:" HorizontalAlignment="Left" Height="25" Margin="15,0,0,60" VerticalAlignment="Bottom" Width="250" Grid.Row="1"/>
+        <Label x:Name="Label3" Content="Выберите параметр для примечания:" HorizontalAlignment="Left" Height="25" Margin="15,0,0,60" VerticalAlignment="Bottom" Width="250" Grid.Row="2"/>
         <ComboBox Name="SheetTemplates"
             HorizontalAlignment="Left"
             Height="25"
@@ -40,7 +41,7 @@
             Height="25"
             Margin="15,0,0,30"
             VerticalAlignment="Bottom"
-            Width="255" Grid.Row="1"/>
+            Width="255" Grid.Row="2"/>
     </Grid>
 
 </Window>
