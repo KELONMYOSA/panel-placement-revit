@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Documents;
 using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace PanelPlacement
 {
@@ -26,42 +27,29 @@ namespace PanelPlacement
             docTitles.Remove(doc.Title);
 
             //Собираем параметры панели
-            IList<string> createdAssemblies = new FilteredElementCollector(doc)
-                .OfCategory(BuiltInCategory.OST_Assemblies)
-                .WhereElementIsNotElementType()
-                .Select(a => a.Name)
-                .ToList();
-            IList<string> sheetsInProject = new FilteredElementCollector(doc)
-                .OfCategory(BuiltInCategory.OST_Sheets)
-                .WhereElementIsNotElementType()
-                .Select(s => s.Name)
-                .Cast<string>()
-                .ToList();
+            IList<Family> currentFamilysOfPanels = new FilteredElementCollector(doc)
+                            .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                            .WhereElementIsElementType()
+                            .Cast<FamilySymbol>()
+                            .Where(p => p.FamilyName.Contains("Панель"))
+                            .Select(p => p.Family)
+                            .Distinct(new FamilyComparer())
+                            .ToList();
 
             IList<string> paramListForAssemble = new List<string>();
-            foreach (string assembly in createdAssemblies)
+            foreach (Family family in currentFamilysOfPanels)
             {
-                AssemblyInstance assemblyElem = new FilteredElementCollector(doc)
-                                .OfCategory(BuiltInCategory.OST_Assemblies)
-                                .WhereElementIsNotElementType()
-                                .Where(a => a.Name == assembly)
-                                .Cast<AssemblyInstance>()
-                                .First();
-                ParameterSet paramsForAssemble = doc.GetElement(assemblyElem.GetMemberIds().First()).Parameters;
-                foreach (Parameter param in paramsForAssemble)
+                IList<FamilySymbol> currentAllTypesInFamily = new List<FamilySymbol>();
+                foreach (ElementId typeId in family.GetFamilySymbolIds())
                 {
-                    if (!paramListForAssemble.Contains(param.Definition.Name))
+                    FamilySymbol currentFamilyType = doc.GetElement(typeId) as FamilySymbol;
+                    ParameterSet paramsInType = currentFamilyType.Parameters;
+                    foreach (Parameter param in paramsInType)
                     {
-                        paramListForAssemble.Add(param.Definition.Name);
-                    }
-                }
-
-                ParameterSet paramsForAssembleType = (doc.GetElement(assemblyElem.GetMemberIds().First()) as FamilyInstance).Symbol.Parameters;
-                foreach (Parameter param in paramsForAssembleType)
-                {
-                    if (!paramListForAssemble.Contains(param.Definition.Name))
-                    {
-                        paramListForAssemble.Add(param.Definition.Name);
+                        if (!paramListForAssemble.Contains(param.Definition.Name))
+                        {
+                            paramListForAssemble.Add(param.Definition.Name);
+                        }
                     }
                 }
             }
@@ -110,7 +98,6 @@ namespace PanelPlacement
                                 allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
                             }
                             allTypesInFamily = allTypesInFamily.OrderBy(q => q.Name).ToList();
-                            IList<string> allTypesInFamilyNames = new List<string>();
 
                             //Получаем список хэш-кодов для всех типов
                             foreach (FamilySymbol type in allTypesInFamily)
@@ -152,10 +139,17 @@ namespace PanelPlacement
                         }
 
                         //Группируем типы с одинаковыми хэшами
-                        Dictionary<string, int> typeNameAndHash = allTypeNames.Zip(hashOfTypes, (k, v) => new { k, v }).ToDictionary(x => x.k, x => x.v);
-                        Dictionary<List<string>, int> groupedTypeNameAndHash = typeNameAndHash.GroupBy(r => r.Value).ToDictionary(t => t.Select(r => r.Key).ToList(), t => t.Key);
-
-                        hashAndTypeNameInDocs.Add(curDoc.Title, groupedTypeNameAndHash);
+                        try
+                        {
+                            Dictionary<string, int> typeNameAndHash = allTypeNames.Zip(hashOfTypes, (k, v) => new { k, v }).ToDictionary(x => x.k, x => x.v);
+                            Dictionary<List<string>, int> groupedTypeNameAndHash = typeNameAndHash.GroupBy(r => r.Value).ToDictionary(t => t.Select(r => r.Key).ToList(), t => t.Key);
+                            hashAndTypeNameInDocs.Add(curDoc.Title, groupedTypeNameAndHash);
+                        }
+                        catch
+                        {
+                            MessageBox.Show("Обнаружены дубликаты типоразмеров с одинаковым названием, но в разных семействах!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return Result.Cancelled;
+                        }
                     }
 
                     string outListOfTypes = "Одинаковые типы панелей:\n";
@@ -265,7 +259,6 @@ namespace PanelPlacement
                                 allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
                             }
                             allTypesInFamily = allTypesInFamily.OrderBy(q => q.Name).ToList();
-                            IList<string> allTypesInFamilyNames = new List<string>();
 
                             //Получаем список хэш-кодов для всех типов
                             foreach (FamilySymbol type in allTypesInFamily)
@@ -296,10 +289,17 @@ namespace PanelPlacement
                         }
 
                         //Группируем типы с одинаковыми хэшами
-                        Dictionary<string, int> typeNameAndHash = allTypeNames.Zip(hashOfTypes, (k, v) => new { k, v }).ToDictionary(x => x.k, x => x.v);
-                        Dictionary<List<string>, int> groupedTypeNameAndHash = typeNameAndHash.GroupBy(r => r.Value).ToDictionary(t => t.Select(r => r.Key).ToList(), t => t.Key);
-
-                        hashAndTypeNameInDocs.Add(curDoc.Title, groupedTypeNameAndHash);
+                        try
+                        {
+                            Dictionary<string, int> typeNameAndHash = allTypeNames.Zip(hashOfTypes, (k, v) => new { k, v }).ToDictionary(x => x.k, x => x.v);
+                            Dictionary<List<string>, int> groupedTypeNameAndHash = typeNameAndHash.GroupBy(r => r.Value).ToDictionary(t => t.Select(r => r.Key).ToList(), t => t.Key);
+                            hashAndTypeNameInDocs.Add(curDoc.Title, groupedTypeNameAndHash);
+                        }
+                        catch
+                        {
+                            MessageBox.Show("Обнаружены дубликаты типоразмеров с одинаковым названием, но в разных семействах!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return Result.Cancelled;
+                        }
                     }
 
                     string outListOfTypes = "Одинаковые типы панелей:\n";
@@ -409,7 +409,6 @@ namespace PanelPlacement
                                 allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
                             }
                             allTypesInFamily = allTypesInFamily.OrderBy(q => q.Name).ToList();
-                            IList<string> allTypesInFamilyNames = new List<string>();
 
                             //Получаем список хэш-кодов для всех типов
                             foreach (FamilySymbol type in allTypesInFamily)
@@ -437,10 +436,17 @@ namespace PanelPlacement
                         }
 
                         //Группируем типы с одинаковыми хэшами
-                        Dictionary<string, int> typeNameAndHash = allTypeNames.Zip(hashOfTypes, (k, v) => new { k, v }).ToDictionary(x => x.k, x => x.v);
-                        Dictionary<List<string>, int> groupedTypeNameAndHash = typeNameAndHash.GroupBy(r => r.Value).ToDictionary(t => t.Select(r => r.Key).ToList(), t => t.Key);
-
-                        hashAndTypeNameInDocs.Add(curDoc.Title, groupedTypeNameAndHash);
+                        try
+                        {
+                            Dictionary<string, int> typeNameAndHash = allTypeNames.Zip(hashOfTypes, (k, v) => new { k, v }).ToDictionary(x => x.k, x => x.v);
+                            Dictionary<List<string>, int> groupedTypeNameAndHash = typeNameAndHash.GroupBy(r => r.Value).ToDictionary(t => t.Select(r => r.Key).ToList(), t => t.Key);
+                            hashAndTypeNameInDocs.Add(curDoc.Title, groupedTypeNameAndHash);
+                        }
+                        catch
+                        {
+                            MessageBox.Show("Обнаружены дубликаты типоразмеров с одинаковым названием, но в разных семействах!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return Result.Cancelled;
+                        }
                     }
 
                     string outListOfTypes = "Одинаковые типы панелей:\n";
