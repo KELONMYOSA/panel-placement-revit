@@ -37,6 +37,7 @@ namespace PanelPlacement
                             .ToList();
 
             IList<string> paramListForAssemble = new List<string>();
+            Dictionary<string, IList<string>> copyTypeNamesInFamilys = new Dictionary<string, IList<string>>();
             foreach (Family family in currentFamilysOfPanels)
             {
                 IList<FamilySymbol> currentAllTypesInFamily = new List<FamilySymbol>();
@@ -51,9 +52,21 @@ namespace PanelPlacement
                             paramListForAssemble.Add(param.Definition.Name);
                         }
                     }
+
+                    if (!copyTypeNamesInFamilys.Keys.Contains(currentFamilyType.Name))
+                    {
+                        IList<string> familyList = new List<string>();
+                        familyList.Add(family.Name);
+                        copyTypeNamesInFamilys.Add(currentFamilyType.Name, familyList);
+                    }
+                    else
+                    {
+                        copyTypeNamesInFamilys[currentFamilyType.Name].Add(family.Name);
+                    }
                 }
             }
             paramListForAssemble = paramListForAssemble.OrderBy(q => q).ToList();
+            copyTypeNamesInFamilys = copyTypeNamesInFamilys.OrderBy(q => q.Key).ToDictionary(x => x.Key, x => x.Value);
 
             var ui = new UserInterfaceDuplicates(doc.Title, docTitles, paramListForAssemble);
             bool tdRes = (bool)ui.ShowDialog();
@@ -147,7 +160,17 @@ namespace PanelPlacement
                         }
                         catch
                         {
-                            MessageBox.Show("Обнаружены дубликаты типоразмеров с одинаковым названием, но в разных семействах!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            string errorTypeNameCopyText = "Обнаружены дубликаты типоразмеров с одинаковым названием, но в разных семействах: \n\n";
+                            foreach (string key in copyTypeNamesInFamilys.Keys)
+                            {
+                                IList<string> familyList = copyTypeNamesInFamilys[key];
+                                if (familyList.Count != 1)
+                                {
+                                    errorTypeNameCopyText += "- " + key + " (" + string.Join(", ", familyList) +")\n";
+                                }
+                            }
+                            MessageBox.Show(errorTypeNameCopyText, "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                             return Result.Cancelled;
                         }
                     }
@@ -297,7 +320,17 @@ namespace PanelPlacement
                         }
                         catch
                         {
-                            MessageBox.Show("Обнаружены дубликаты типоразмеров с одинаковым названием, но в разных семействах!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            string errorTypeNameCopyText = "Обнаружены дубликаты типоразмеров с одинаковым названием, но в разных семействах: \n\n";
+                            foreach (string key in copyTypeNamesInFamilys.Keys)
+                            {
+                                IList<string> familyList = copyTypeNamesInFamilys[key];
+                                if (familyList.Count != 1)
+                                {
+                                    errorTypeNameCopyText += "- " + key + " (" + string.Join(", ", familyList) + ")\n";
+                                }
+                            }
+                            MessageBox.Show(errorTypeNameCopyText, "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                             return Result.Cancelled;
                         }
                     }
@@ -444,7 +477,17 @@ namespace PanelPlacement
                         }
                         catch
                         {
-                            MessageBox.Show("Обнаружены дубликаты типоразмеров с одинаковым названием, но в разных семействах!", "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            string errorTypeNameCopyText = "Обнаружены дубликаты типоразмеров с одинаковым названием, но в разных семействах: \n\n";
+                            foreach (string key in copyTypeNamesInFamilys.Keys)
+                            {
+                                IList<string> familyList = copyTypeNamesInFamilys[key];
+                                if (familyList.Count != 1)
+                                {
+                                    errorTypeNameCopyText += "- " + key + " (" + string.Join(", ", familyList) + ")\n";
+                                }
+                            }
+                            MessageBox.Show(errorTypeNameCopyText, "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                             return Result.Cancelled;
                         }
                     }
