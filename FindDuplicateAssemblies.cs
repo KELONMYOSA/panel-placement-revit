@@ -78,6 +78,7 @@ namespace PanelPlacement
             else
             { 
                 int findMode = ui.findMode;
+                bool onlyPlacedPanels = ui.onlyPlacedPanels;
                 string comparingParam = ui.comparingParam;
                 IList<string> comparingParamsList = ui.comparingParamsList;
                 IList<string> comparingDocsTitles = ui.comparingDocs;
@@ -102,13 +103,35 @@ namespace PanelPlacement
                         IList<int> hashOfTypes = new List<int>();
                         IList<string> allTypeNames = new List<string>();
 
+                        IList<ElementId> instacesOfType = new FilteredElementCollector(curDoc)
+                            .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                            .WhereElementIsNotElementType()
+                            .Cast<FamilyInstance>()
+                            .Where(p => p.Symbol.FamilyName.Contains("Панель"))
+                            .Select(p => p.Symbol.Id)
+                            .Distinct()
+                            .ToList();
+
                         foreach (Family family in familysOfPanels)
                         {
                             //Получаем все типы панелей
                             IList<FamilySymbol> allTypesInFamily = new List<FamilySymbol>();
-                            foreach (ElementId typeId in family.GetFamilySymbolIds())
+                            if (onlyPlacedPanels)
                             {
-                                allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
+                                foreach (ElementId typeId in family.GetFamilySymbolIds())
+                                {
+                                    if (instacesOfType.Contains(typeId))
+                                    {
+                                        allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (ElementId typeId in family.GetFamilySymbolIds())
+                                {
+                                    allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
+                                }
                             }
                             allTypesInFamily = allTypesInFamily.OrderBy(q => q.Name).ToList();
 
@@ -273,13 +296,35 @@ namespace PanelPlacement
                         IList<int> hashOfTypes = new List<int>();
                         IList<string> allTypeNames = new List<string>();
 
+                        IList<ElementId> instacesOfType = new FilteredElementCollector(curDoc)
+                            .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                            .WhereElementIsNotElementType()
+                            .Cast<FamilyInstance>()
+                            .Where(p => p.Symbol.FamilyName.Contains("Панель"))
+                            .Select(p => p.Symbol.Id)
+                            .Distinct()
+                            .ToList();
+
                         foreach (Family family in familysOfPanels)
                         {
                             //Получаем все типы панелей
                             IList<FamilySymbol> allTypesInFamily = new List<FamilySymbol>();
-                            foreach (ElementId typeId in family.GetFamilySymbolIds())
+                            if (onlyPlacedPanels)
                             {
-                                allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
+                                foreach (ElementId typeId in family.GetFamilySymbolIds())
+                                {
+                                    if (instacesOfType.Contains(typeId))
+                                    {
+                                        allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (ElementId typeId in family.GetFamilySymbolIds())
+                                {
+                                    allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
+                                }
                             }
                             allTypesInFamily = allTypesInFamily.OrderBy(q => q.Name).ToList();
 
@@ -433,13 +478,35 @@ namespace PanelPlacement
                         IList<int> hashOfTypes = new List<int>();
                         IList<string> allTypeNames = new List<string>();
 
+                        IList<ElementId> instacesOfType = new FilteredElementCollector(curDoc)
+                            .OfCategory(BuiltInCategory.OST_StructuralFraming)
+                            .WhereElementIsNotElementType()
+                            .Cast<FamilyInstance>()
+                            .Where(p => p.Symbol.FamilyName.Contains("Панель"))
+                            .Select(p => p.Symbol.Id)
+                            .Distinct()
+                            .ToList();
+
                         foreach (Family family in familysOfPanels)
                         {
                             //Получаем все типы панелей
                             IList<FamilySymbol> allTypesInFamily = new List<FamilySymbol>();
-                            foreach (ElementId typeId in family.GetFamilySymbolIds())
+                            if (onlyPlacedPanels)
                             {
-                                allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
+                                foreach (ElementId typeId in family.GetFamilySymbolIds())
+                                {
+                                    if (instacesOfType.Contains(typeId))
+                                    {
+                                        allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (ElementId typeId in family.GetFamilySymbolIds())
+                                {
+                                    allTypesInFamily.Add(curDoc.GetElement(typeId) as FamilySymbol);
+                                }
                             }
                             allTypesInFamily = allTypesInFamily.OrderBy(q => q.Name).ToList();
 

@@ -91,6 +91,14 @@ namespace PanelPlacement
             }
         }
 
+        public bool onlyPlacedPanels
+        {
+            get
+            {
+                return (bool)OnlyCreated.IsChecked;
+            }
+        }
+
         private void ButtonFind(Object sender, EventArgs e)
         {
             if (paramSelectionIsActive && comboBoxParam.SelectedItem == null)
@@ -176,8 +184,10 @@ namespace PanelPlacement
                 comboBoxParam.Margin = new Thickness(0, 130, 0, 0);
                 WindowGrid.Children.Add(comboBoxParam);
                 Grid.SetRow(comboBoxParam, 0);
-                WindowGrid.RowDefinitions[0].Height = new GridLength(WindowGrid.RowDefinitions[0].Height.Value + 30);
+                WindowGrid.RowDefinitions[0].Height = new GridLength(WindowGrid.RowDefinitions[0].Height.Value + 35);
                 paramSelectionIsActive = true;
+
+                OnlyCreated.Margin = new Thickness(15, 170, 0, 0);
             } 
         }
 
@@ -186,8 +196,10 @@ namespace PanelPlacement
             WindowGrid.Children.Remove(comboBoxParam);
             if (paramSelectionIsActive)
             {
-                WindowGrid.RowDefinitions[0].Height = new GridLength(WindowGrid.RowDefinitions[0].Height.Value - 30);
+                WindowGrid.RowDefinitions[0].Height = new GridLength(WindowGrid.RowDefinitions[0].Height.Value - 35);
                 paramSelectionIsActive = false;
+
+                OnlyCreated.Margin = new Thickness(15, 135, 0, 0);
             }
         }
 

@@ -7,11 +7,11 @@
                    Topmost="True"
                    ResizeMode="NoResize"
                    Width="300" Height="Auto" SizeToContent="Height"
-                   d:DesignHeight="250" d:DesignWidth="300">
+                   d:DesignHeight="280" d:DesignWidth="300">
 
     <Grid x:Name="WindowGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="170"/>
+            <RowDefinition Height="200"/>
             <RowDefinition Height="0"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
@@ -51,6 +51,13 @@
             VerticalAlignment="Top"
             Width="255" Grid.Row="0"
             Content="Выбрать параметр"/>
+        <CheckBox Name="OnlyCreated"
+            HorizontalAlignment="Left"
+            Height="25"
+            Margin="15,135,0,0"
+            VerticalAlignment="Top"
+            Width="255" Grid.Row="0"
+            Content="Среди размещенных в проекте"/>
         <Label x:Name="Label2" Content="Текущий документ:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,10,0,0" Width="250" Height="35" Grid.Row="1"/>
         <Label x:Name="CurrentDocName" Content="Document" VerticalAlignment="Top" Margin="15,35,15,0" Height="35" Grid.Row="1" HorizontalContentAlignment="Center"/>
         <Label x:Name="Label3" Content="Открытые документы:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15,65,0,0" Width="250" Height="35" Grid.Row="1"/>
