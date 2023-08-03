@@ -93,6 +93,15 @@ namespace PanelPlacement
             btn5.LargeImage = ConverPngToBitmap(Properties.Resources.UpdateNote);
             btn5.ToolTip = "Обновить примечание на листах";
 
+            PushButton btn6 = panelViews.AddItem(new PushButtonData(
+                            "MirrorThePanel",
+                            "Отзеркалить панель",
+                            assemblyPath,
+                            "PanelPlacement.MirrorThePanel")
+                            ) as PushButton;
+            btn6.LargeImage = ConverPngToBitmap(Properties.Resources.MirrorThePanel);
+            btn6.ToolTip = "Создать типоразмер панели, отраженной зеркально";
+
             return Result.Succeeded;
         }
         public Result OnShutdown(UIControlledApplication application)

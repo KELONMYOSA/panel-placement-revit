@@ -93,6 +93,16 @@ namespace PanelPlacement.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap MirrorThePanel {
+            get {
+                object obj = ResourceManager.GetObject("MirrorThePanel", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap PlaceOnSheets {
             get {
                 object obj = ResourceManager.GetObject("PlaceOnSheets", resourceCulture);
