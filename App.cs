@@ -95,12 +95,12 @@ namespace PanelPlacement
 
             PushButton btn6 = panelViews.AddItem(new PushButtonData(
                             "MirrorThePanel",
-                            "Отзеркалить панель",
+                            "Отзеркалить панели",
                             assemblyPath,
                             "PanelPlacement.MirrorThePanel")
                             ) as PushButton;
             btn6.LargeImage = ConverPngToBitmap(Properties.Resources.MirrorThePanel);
-            btn6.ToolTip = "Создать типоразмер панели, отраженной зеркально";
+            btn6.ToolTip = "Создать типоразмеры панелей, отраженных зеркально";
 
             return Result.Succeeded;
         }

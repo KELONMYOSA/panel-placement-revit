@@ -13,6 +13,7 @@
     <None Remove="UserInterfaceDuplicates.xaml" />
     <None Remove="UserInterfaceDuplicatesParams.xaml" />
     <None Remove="UserInterfaceDuplicatesResults.xaml" />
+    <None Remove="UserInterfaceMirror.xaml" />
     <None Remove="UserInterfaceNote.xaml" />
     <None Remove="UserInterfaceSheets.xaml" />
     <None Remove="UserInterfaceViews.xaml" />
@@ -29,6 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Include="UserInterfaceMirror.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserInterfaceDuplicates.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -99,6 +104,9 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="UserInterfaceMirror.xaml.cs">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Update="UserInterfaceDuplicates.xaml.cs">
       <SubType>Code</SubType>

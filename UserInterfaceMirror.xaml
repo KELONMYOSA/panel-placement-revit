@@ -1,0 +1,55 @@
+﻿<Window x:Class="PanelPlacement.UserInterfaceMirror"
+                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+                   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                   mc:Ignorable="d" 
+                   Width="200" Height="270"
+                   ResizeMode="NoResize"
+                   d:DesignHeight="270" d:DesignWidth="200">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="30px"/>
+        </Grid.RowDefinitions>
+        
+        <Button x:Name="BtnOK" Grid.Row="1"
+                Width="100"
+                Click="ButtonOK"
+                Content=" OK "
+                HorizontalAlignment="Center"
+                VerticalAlignment="Stretch"/>
+        <Label x:Name="Label1" Content="Выберите панели:" HorizontalAlignment="Left" Height="25" Margin="15,10,0,0" VerticalAlignment="Top" Width="150"/>
+        <Button x:Name="BtnPanels" Grid.Row="0"
+                Background="IndianRed"
+                Width="200"
+                Height="25"
+                Margin="0,40,0,0"
+                Click="ButtonPanels"
+                Content="Выбрать"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"/>
+        <Label x:Name="Label2" Content="Выберите таблицу:" HorizontalAlignment="Left" Height="25" Margin="15,70,0,0" VerticalAlignment="Top" Width="150"/>
+        <Button x:Name="BtnTable" Grid.Row="0"
+                Background="IndianRed"
+                Width="200"
+                Height="25"
+                Margin="0,100,0,0"
+                Click="ButtonTable"
+                Content="Выбрать"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"/>
+        <Label x:Name="Label3" Content="Выберите ось симметрии:" HorizontalAlignment="Left" Height="25" Margin="15,130,0,0" VerticalAlignment="Top" Width="160"/>
+        <Button x:Name="BtnLine" Grid.Row="0"
+                Background="IndianRed"
+                Width="200"
+                Height="25"
+                Margin="0,160,0,0"
+                Click="ButtonLine"
+                Content="Выбрать"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"/>
+    </Grid>
+
+</Window>
