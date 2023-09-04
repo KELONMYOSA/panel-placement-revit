@@ -4,10 +4,9 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Forms;
 
 namespace PanelPlacement
@@ -59,7 +58,8 @@ namespace PanelPlacement
                             transaction.Start("Создание типа З-" + panelType.Name);
 
                             newPanelType = panelType.Duplicate("З-" + panelType.Name);
-                            ChangeParamsFromCsv(panelType, newPanelType, tablePath);
+                            bool changeResult = ChangeParamsFromCsv(panelType, newPanelType, tablePath);
+                            if (!changeResult) return Result.Cancelled;
 
                             transaction.Commit();
                         }
@@ -88,9 +88,108 @@ namespace PanelPlacement
             }    
         }
 
-        private static void ChangeParamsFromCsv(ElementType oldType, ElementType newType, string filePath)
+        private static bool ChangeParamsFromCsv(ElementType oldType, ElementType newType, string filePath)
         {
+            using (StreamReader rd = new StreamReader(filePath, Encoding.Default))
+            {
+                rd.ReadLine();
+                while (!rd.EndOfStream)
+                {
+                    string line = rd.ReadLine();
+                    try
+                    {
+                        string[] cell = line.Split(',');
 
+                        if (cell[1] == "все" || oldType.Name.StartsWith(cell[1]))
+                        {
+                            bool conditionResult = false;
+                            string[] condition = cell[2].Split(' ');
+                            StorageType paramType = oldType.LookupParameter(condition[0]).StorageType;
+                            if (paramType == StorageType.Integer || paramType == StorageType.Double)
+                            {
+                                if (condition[2] == "true")
+                                {
+                                    condition[2] = "1";
+                                }
+                                else if (condition[2] == "false") 
+                                {
+                                    condition[2] = "0";
+                                }
+                                
+                                if (condition[1] == "=")
+                                {
+                                    if (oldType.LookupParameter(condition[0]).AsDouble().Equals(Convert.ToDouble(condition[2]))) conditionResult = true;
+                                }
+                                else if (condition[1] == ">")
+                                {
+                                    if (oldType.LookupParameter(condition[0]).AsDouble() > Convert.ToDouble(condition[2])) conditionResult = true;
+                                }
+                                else if (condition[1] == "<")
+                                {
+                                    if (oldType.LookupParameter(condition[0]).AsDouble() < Convert.ToDouble(condition[2])) conditionResult = true;
+                                }
+                            }
+                            else if (paramType == StorageType.String)
+                            {
+                                if (condition[1] == "=")
+                                {
+                                    if (oldType.LookupParameter(condition[0]).AsString().Equals(condition[2])) conditionResult = true;
+                                }
+                            }
+                            if (conditionResult)
+                            {
+                                newType.LookupParameter(cell[0]).Set(CalculateParams(oldType, cell[3]));
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Проверьте строку - \"" + line + "\"!", "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        private static double CalculateParams(ElementType type, string expression)
+        {
+            string[] arrayOfString = expression.Split(new Char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
+
+            double result = 0, num = 0;
+            bool plus = true;
+            for (int i = 0; i < arrayOfString.Length; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    if (double.TryParse(arrayOfString[i], out num))
+                    {
+                        num = num / 304.8;
+                    }
+                    else
+                    {
+                        num = type.LookupParameter(arrayOfString[i]).AsDouble();
+                    }
+                    
+                    if (plus)
+                    {
+                        result = result + num;
+                    }   
+                    else
+                    {
+                        result = result - num;
+                    }    
+                }
+                else
+                {
+                    if (arrayOfString[i] == "+")
+                        plus = true;
+                    else
+                        plus = false;
+                }
+            }
+
+            return result;
         }
     }
 }
