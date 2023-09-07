@@ -100,47 +100,93 @@ namespace PanelPlacement
                     {
                         string[] cell = line.Split(',');
 
-                        if (cell[1] == "все" || oldType.Name.StartsWith(cell[1]))
+                        Parameter paramExists = oldType.LookupParameter(cell[0]);
+                        
+                        if (paramExists != null)
                         {
-                            bool conditionResult = false;
-                            string[] condition = cell[2].Split(' ');
-                            StorageType paramType = oldType.LookupParameter(condition[0]).StorageType;
-                            if (paramType == StorageType.Integer || paramType == StorageType.Double)
+                            if (cell[1] == "all" || oldType.Name.StartsWith(cell[1]))
                             {
-                                if (condition[2] == "true")
+                                bool conditionResult = false;
+
+                                if (cell[2] == "no")
                                 {
-                                    condition[2] = "1";
+                                    conditionResult = true;
                                 }
-                                else if (condition[2] == "false") 
+                                else
                                 {
-                                    condition[2] = "0";
+                                    string[] conditions = cell[2].Split('&');
+
+                                    foreach (string cond in conditions)
+                                    {
+                                        conditionResult = false;
+
+                                        string[] condition = cond.Split('|');
+                                        StorageType paramType = oldType.LookupParameter(condition[0]).StorageType;
+                                        if (paramType == StorageType.Integer)
+                                        {
+                                            if (condition[2] == "true")
+                                            {
+                                                condition[2] = "1";
+                                            }
+                                            else if (condition[2] == "false")
+                                            {
+                                                condition[2] = "0";
+                                            }
+
+                                            if (condition[1] == "=")
+                                            {
+                                                if (oldType.LookupParameter(condition[0]).AsInteger().Equals(Convert.ToInt32(condition[2]))) conditionResult = true;
+                                            }
+                                            else if (condition[1] == ">")
+                                            {
+                                                if (oldType.LookupParameter(condition[0]).AsInteger() > Convert.ToInt32(condition[2])) conditionResult = true;
+                                            }
+                                            else if (condition[1] == "<")
+                                            {
+                                                if (oldType.LookupParameter(condition[0]).AsInteger() < Convert.ToInt32(condition[2])) conditionResult = true;
+                                            }
+                                        }
+                                        else if (paramType == StorageType.Double)
+                                        {
+                                            if (condition[1] == "=")
+                                            {
+                                                if (oldType.LookupParameter(condition[0]).AsDouble().Equals(Convert.ToDouble(condition[2]))) conditionResult = true;
+                                            }
+                                            else if (condition[1] == ">")
+                                            {
+                                                if (oldType.LookupParameter(condition[0]).AsDouble() > Convert.ToDouble(condition[2])) conditionResult = true;
+                                            }
+                                            else if (condition[1] == "<")
+                                            {
+                                                if (oldType.LookupParameter(condition[0]).AsDouble() < Convert.ToDouble(condition[2])) conditionResult = true;
+                                            }
+                                        }
+                                        else if (paramType == StorageType.String)
+                                        {
+                                            if (condition[1] == "=")
+                                            {
+                                                if (oldType.LookupParameter(condition[0]).AsString().Equals(condition[2])) conditionResult = true;
+                                            }
+                                        }
+
+                                        if (!conditionResult) break;
+                                    }
                                 }
-                                
-                                if (condition[1] == "=")
+
+                                if (conditionResult)
                                 {
-                                    if (oldType.LookupParameter(condition[0]).AsDouble().Equals(Convert.ToDouble(condition[2]))) conditionResult = true;
-                                }
-                                else if (condition[1] == ">")
-                                {
-                                    if (oldType.LookupParameter(condition[0]).AsDouble() > Convert.ToDouble(condition[2])) conditionResult = true;
-                                }
-                                else if (condition[1] == "<")
-                                {
-                                    if (oldType.LookupParameter(condition[0]).AsDouble() < Convert.ToDouble(condition[2])) conditionResult = true;
+                                    double paramResult = CalculateParams(oldType, cell[3]);
+                                    if (newType.LookupParameter(cell[0]).StorageType == StorageType.Double)
+                                    {
+                                        newType.LookupParameter(cell[0]).Set(paramResult);
+                                    }
+                                    else
+                                    {
+                                        newType.LookupParameter(cell[0]).Set(Convert.ToInt16(paramResult));
+                                    }
                                 }
                             }
-                            else if (paramType == StorageType.String)
-                            {
-                                if (condition[1] == "=")
-                                {
-                                    if (oldType.LookupParameter(condition[0]).AsString().Equals(condition[2])) conditionResult = true;
-                                }
-                            }
-                            if (conditionResult)
-                            {
-                                newType.LookupParameter(cell[0]).Set(CalculateParams(oldType, cell[3]));
-                            }
-                        }
+                        }  
                     }
                     catch
                     {
