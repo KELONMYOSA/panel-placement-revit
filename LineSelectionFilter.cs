@@ -9,7 +9,7 @@ namespace PanelPlacement
         public bool AllowElement(Element elem)
         {
 
-            if (elem.Category.BuiltInCategory.ToString() == BuiltInCategory.OST_Lines.ToString())
+            if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_Lines)
             {
                 return true;
             }

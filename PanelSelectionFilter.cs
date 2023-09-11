@@ -8,7 +8,7 @@ namespace PanelPlacement
     {
         public bool AllowElement(Element elem)
         {
-            if (elem.Category.BuiltInCategory.ToString() == BuiltInCategory.OST_StructuralFraming.ToString()
+            if (elem.Category.Id.IntegerValue == (int)BuiltInCategory.OST_StructuralFraming
                 && (elem.Document.GetElement(elem.GetTypeId()) as ElementType).FamilyName.Contains("Панель"))
             {
                 return true;

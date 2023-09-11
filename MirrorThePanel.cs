@@ -78,7 +78,11 @@ namespace PanelPlacement
                         Element mirroredPanel = doc.GetElement(mirroredPanelId);
                         string mirroredPanelTypeName = (doc.GetElement(mirroredPanel.GetTypeId()) as ElementType).Name;
                         ElementType newType = newPanelTypes.Where(t => t.Name.Equals("З-" + mirroredPanelTypeName)).FirstOrDefault();
-                        mirroredPanel.ChangeTypeId(newType.Id);
+                        XYZ newPanelXYZ = (mirroredPanel.Location as LocationPoint).Point;
+                        double newPanelAngle = (mirroredPanel.Location as LocationPoint).Rotation + Math.PI;
+                        doc.Delete(mirroredPanelId);
+                        FamilyInstance newMirroredPanel = doc.Create.NewFamilyInstance(newPanelXYZ, newType as FamilySymbol, Autodesk.Revit.DB.Structure.StructuralType.NonStructural);
+                        newMirroredPanel.Location.Rotate(Line.CreateBound(newPanelXYZ, new XYZ(newPanelXYZ.X, newPanelXYZ.Y, newPanelXYZ.Z + 1)), newPanelAngle);
                     }
 
                     transaction.Commit();
