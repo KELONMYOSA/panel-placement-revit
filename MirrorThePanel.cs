@@ -4,6 +4,7 @@ using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -218,7 +219,14 @@ namespace PanelPlacement
                     }
                     else
                     {
-                        num = type.LookupParameter(arrayOfString[i]).AsDouble();
+                        if (type.LookupParameter(arrayOfString[i]).StorageType == StorageType.Integer)
+                        {
+                            num = type.LookupParameter(arrayOfString[i]).AsInteger();
+                        }
+                        else
+                        {
+                            num = type.LookupParameter(arrayOfString[i]).AsDouble();
+                        }
                     }
                     
                     if (plus)
