@@ -91,8 +91,8 @@ namespace PanelPlacement
             OpenFileDialog dlg = new OpenFileDialog();
 
             dlg.InitialDirectory = Path.GetDirectoryName(document.PathName);
-            dlg.DefaultExt = ".csv";
-            dlg.Filter = "CSV|*.csv|Text|*.txt";
+            dlg.DefaultExt = ".xlsx";
+            dlg.Filter = "Excel|*.xlsx";
 
             DialogResult result = dlg.ShowDialog();
 
